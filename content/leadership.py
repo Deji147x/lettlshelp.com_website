@@ -3,17 +3,18 @@
 Sources: 'TLS2_Website Development Guide_ 09132026.pdf' (current) and the owner's brief.
 Copy that isn't in those sources carries a `draft` note so it gets owner/legal sign-off.
 """
-from common import (COMMERCE_SLOT, CONSUMER_DISCLAIMER, CREDENTIALS_SLOT,
-                    ETHICS_DISCLAIMER, FOUNDER_PHOTO_SLOT, GSC_TOKEN, LEGAL_REVIEW, PHONE,
-                    PRIVACY_OUTLINE, REFERRALS, RULE17, TERMS_OUTLINE)
+from common import (COMMERCE_SLOT, FOUNDER_GROUPS, FOUNDER_PHOTO_SLOT, GSC_TOKEN, PHONE,
+                    REFERRALS, ROOT_POLICIES)
+from common import EMAIL_LEADERSHIP as C_EMAIL_LEADERSHIP
 from screening import (LEADERSHIP_INTRO, LEADERSHIP_QUESTIONS, ROLES, STOP_REFERRALS, STOP_TEXT, STOP_TITLE)
 
-# Owner's instruction (2026-09-16) for this site. The Life site uses services@lettlshelp.com.
-EMAIL = "support@lettlshelp.com"
+# Owner's instruction (vision document, 2026-09-16) for this site. Replaces support@.
+EMAIL = C_EMAIL_LEADERSHIP
 
-# Shares lettlshelp.com with Life Solutions for now (owner's decision, 2026-09-16); this site is
-# served under /leadership-systems/. Future home: TransformativeLeadershipSystems.com.
-SISTER_URL = "https://lettlshelp.com/"
+# Shares lettlshelp.com with Life Solutions; this site is served under /leadership-systems/.
+# The root is now the shared hub, so the sister link points at /life-solutions/, not "/".
+# Future home: TransformativeLeadershipSystems.com.
+SISTER_URL = "https://lettlshelp.com/life-solutions/"
 
 SITE = {
     "key": "leadership",
@@ -23,6 +24,7 @@ SITE = {
     "word_bottom": "Leadership Systems",
     "domain": "https://lettlshelp.com",
     "base": "/leadership-systems",
+    "root_depth": 1,  # folders between this site's pages and the domain root
     "css": "leadership.css",
     "fonts": "https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Lato:wght@400;700"
              "&family=Playfair+Display:ital@1&display=swap",
@@ -41,11 +43,24 @@ SITE = {
                         "advocacy, or medical, mental health, or clinical therapeutic services.",
     "keywords": ["arbitration", "med-arb", "business mediation", "negotiation", "NDA", "conflict coaching", "ADR",
                  "mediator", "organizational facilitation"],
-    "nav": [("", "Home"), ("about", "About"), ("services", "Services"), ("how-it-works", "How It Works"),
-            ("resources", "Resources"), ("faq", "FAQ"), ("contact", "Contact")],
+    # A 2-tuple is a plain link; a 3-tuple adds a dropdown. Every child is a real anchor on the
+    # parent's own page, so the submenu is a shortcut and never the only way in.
+    "nav": [
+        ("", "Home"),
+        ("about", "About", [("about#our-founder", "Our Founder"),
+                            ("about#completed-trainings", "Completed Trainings"),
+                            ("about#credentials", "Credentials"),
+                            ("about#affiliations", "Affiliations")]),
+        ("services", "Services", [("services#arbitration", "Arbitration & Med‑Arb"),
+                                  ("services#mediation", "Business & Organizational Mediation"),
+                                  ("services#negotiation", "Negotiation Support"),
+                                  ("services#coaching", "Leadership Conflict Coaching")]),
+        ("how-it-works", "How It Works"),
+        ("faq", "FAQ"),
+        ("contact", "Contact"),
+    ],
     "nav_external": None,
-    "policies": [("ethics", "Ethics & Compliance"), ("privacy-policy", "Privacy Policy"),
-                 ("terms-disclaimers", "Terms & Disclaimers")],
+    "policies": ROOT_POLICIES,  # shared with Life Solutions at the domain root
     "sister": ("Transformative Life Solutions", SISTER_URL, "Family-centered mediation and conflict coaching"),
     "cta": ("contact", "Request a Consultation"),
     "topics": ["Arbitration & Med-Arb", "Business & Organizational Mediation", "Negotiation Support",
@@ -274,14 +289,16 @@ PAGES = [
                  {"icon": "lock", "title": "Confidential process",
                   "text": "Mediation‑related communication remains confidential."},
              ],
-             "slot": CREDENTIALS_SLOT},
+             # The owner supplied real trainings, credentials, and affiliations in the vision
+             # document, so the old "owner to supply" placeholder is gone; this links to them.
+             "link": ("about#credentials", "See credentials & affiliations")},
             {"type": "notlist", "wf": "Pattern: tls/scope-notice", "tone": "soft", "h2": "What we don't handle",
              "intro": "We do not mediate, arbitrate, coach, or negotiate matters involving:",
              "bullets": ["Consumer‑business disputes",
                          "Businesses that sell goods or services to consumers",
                          "Any matter connected to Maryland consumer protection laws or the Office of the Attorney "
                          "General"],
-             "link": ("ethics", "Read our ethics commitment")},
+             "link": ("/ethics", "Read our ethics commitment")},
             {"type": "faq", "wf": "Pattern: tls/faq-preview (Details blocks)", "tone": "white", "center": True,
              "eyebrow": "FAQ", "h2": "Common questions", "items": [FAQ[1], FAQ[12], FAQ[4]],
              "link": ("faq", "See all questions")},
@@ -297,17 +314,19 @@ PAGES = [
         "sections": [
             {"type": "page_hero", "eyebrow": "About", "h1": "About Transformative Leadership Systems",
              "lede": "Neutral, ethical conflict resolution for leaders and organizations."},
-            {"type": "split", "wf": "Pattern: tls/founder", "tone": "white", "eyebrow": "Our founder",
-             "h2": "Founded by Tanika L. Smith",
+            {"type": "split", "id": "our-founder", "wf": "Pattern: tls/founder", "tone": "white",
+             "eyebrow": "Our founder", "h2": "Founded by Tanika L. Smith",
              "paras": ["Transformative Leadership Systems was founded by Tanika L. Smith, a seasoned alternative "
                        "dispute resolution (ADR) practitioner and organizational communication strategist."],
-             "media_slot": FOUNDER_PHOTO_SLOT, "slot": CREDENTIALS_SLOT},
-            {"type": "cards", "wf": "Pattern: tls/pillars", "tone": "soft", "center": True, "eyebrow": "Our pillars",
+             "media_slot": FOUNDER_PHOTO_SLOT},
+            {"type": "credgroups", "wf": "Pattern: tls/founder-credentials", "tone": "soft",
+             "groups": FOUNDER_GROUPS},
+            {"type": "cards", "wf": "Pattern: tls/pillars", "tone": "white", "center": True, "eyebrow": "Our pillars",
              "h2": "Three pillars guide our work", "items": PILLARS, "draft": DESC_DRAFT},
-            {"type": "text", "wf": "Pattern: tls/text", "tone": "white", "h2": "Strict ethics protocols",
+            {"type": "text", "wf": "Pattern: tls/text", "tone": "soft", "h2": "Strict ethics protocols",
              "paras": ["We maintain strict ethics protocols, and all services are structured to avoid conflicts of "
                        "interest and to protect integrity."],
-             "link": ("ethics", "Ethics & Compliance")},
+             "link": ("/ethics", "Ethics & Compliance")},
             {"type": "split", "wf": "Pattern: tls/media-text", "tone": "mist", "reverse": True,
              "h2": "Serving eligible B2B clients",
              "paras": ["We work with eligible business‑to‑business clients through virtual and in‑person options."],
@@ -359,7 +378,7 @@ PAGES = [
             {"type": "notlist", "wf": "Pattern: tls/scope-notice", "tone": "mist", "h2": "What we do not handle",
              "intro": "Transformative Leadership Systems does not mediate, arbitrate, coach, or negotiate matters "
                       "involving:",
-             "bullets": NOT_HANDLED, "outro": ETHICS_5502, "link": ("ethics", "Ethics & Compliance")},
+             "bullets": NOT_HANDLED, "outro": ETHICS_5502, "link": ("/ethics", "Ethics & Compliance")},
             dict(CROSSLINK, tone="white"),
             {"type": "slot", "tone": "white", **COMMERCE_SLOT},
             CTA,
@@ -391,29 +410,13 @@ PAGES = [
                          "or legal advocacy.",
                          "We provide conflict‑coaching and organizational facilitation services only. We do not "
                          "provide medical or mental health counseling or clinical therapeutic services."],
-             "link": ("terms-disclaimers", "Read all disclaimers")},
+             "link": ("/disclaimers", "Read all disclaimers")},
             CTA,
         ],
     },
-    {
-        "slug": "resources", "label": "Resources", "schema_type": "CollectionPage",
-        "title": "ADR Resources | Transformative Leadership Systems",
-        "description": "Articles on arbitration, med-arb, business mediation, negotiation, board governance, and "
-                       "conflict coaching for leaders.",
-        "sections": [
-            {"type": "page_hero", "eyebrow": "Resources", "h1": "Resources for leaders and organizations",
-             "lede": "Insights on arbitration, business mediation, negotiation, and leadership conflict."},
-            {"type": "posts", "wf": "Query Loop: Posts (blog index)", "tone": "white", "h2": "Latest articles",
-             "cats": ["Arbitration & Med‑Arb", "Business Mediation", "Negotiation & NDAs", "Board Governance",
-                      "Leadership Conflict Coaching"],
-             "draft": "Blog architecture only. Categories target the SEO keywords; post cards fill in automatically "
-                      "from WordPress. No articles are published yet."},
-            {"type": "list", "wf": "Pattern: tls/referrals", "tone": "soft", "h2": "Helpful organizations",
-             "items": REFERRALS, "draft": "Add verified website links for each resource."},
-            {"type": "slot", "tone": "white", **COMMERCE_SLOT},
-            CTA,
-        ],
-    },
+    # Resources (the blog index) was removed on the owner's instruction, 2026-09-16. The renderer
+    # and the "posts" section type are still in tools/build.py, so restoring it is a paste job --
+    # see git history for the original block.
     {
         "slug": "faq", "label": "FAQ",
         "title": "Arbitration FAQ | Transformative Leadership Systems",
@@ -460,71 +463,7 @@ PAGES = [
                       "secure WordPress form (encrypted storage and retention rules) and confirm what is kept."},
         ],
     },
-    {
-        "slug": "ethics", "label": "Ethics & Compliance",
-        "title": "Ethics & Compliance | Transformative Leadership Systems",
-        "description": "How Transformative Leadership Systems complies with Maryland Public Ethics Law §5-502, "
-                       "screens every matter, and provides free referrals.",
-        "sections": [
-            {"type": "page_hero", "eyebrow": "Ethics & Compliance", "h1": "Our commitment to ethical practice",
-             "lede": "Neutral, transparent, and structured to avoid conflicts of interest."},
-            {"type": "text", "tone": "white", "h2": "Compliance with Maryland Public Ethics Law §5‑502",
-             "paras": ["Transformative Leadership Systems operates in full compliance with Maryland Public Ethics Law "
-                       "§5‑502 and maintains strict boundaries to avoid conflicts of interest.",
-                       "We do not provide services related to consumer‑business disputes or any matter that falls "
-                       "under Maryland consumer protection laws or the authority of the Office of the Attorney "
-                       "General."]},
-            {"type": "cards", "tone": "soft", "h2": "What we focus on",
-             "intro": "Private, non‑consumer‑facing organizational conflicts, including:", "items": FOCUS},
-            {"type": "notlist", "tone": "white", "h2": "What we do not handle",
-             "intro": "We do not mediate, arbitrate, coach, or negotiate matters involving:",
-             "bullets": NOT_HANDLED, "outro": ETHICS_5502},
-            {"type": "text", "tone": "mist", "h2": "Screening protocol",
-             "paras": ["Transformative Leadership Systems uses written and verbal screening processes to determine "
-                       "client eligibility and maintains documentation of all screening decisions. If we are unable "
-                       "to facilitate your matter, we will explain why and provide free supportive referrals."]},
-            {"type": "list", "tone": "white", "h2": "Suggested referrals", "items": REFERRALS},
-            CTA,
-        ],
-    },
-    {
-        "slug": "privacy-policy", "label": "Privacy Policy",
-        "title": "Privacy Policy | Transformative Leadership Systems",
-        "description": "How Transformative Leadership Systems collects, uses, and protects information shared "
-                       "through this website, including contact forms, screening, and analytics.",
-        "sections": [
-            {"type": "page_hero", "eyebrow": "Policies", "h1": "Privacy policy",
-             "lede": "How we collect, use, and protect your information."},
-            {"type": "legal", "tone": "white", "h2": "Policy outline", "draft": LEGAL_REVIEW,
-             "outline": PRIVACY_OUTLINE},
-        ],
-    },
-    {
-        "slug": "terms-disclaimers", "label": "Terms & Disclaimers",
-        "title": "Terms & Disclaimers | Transformative Leadership Systems",
-        "description": "Important disclaimers: neutral ADR only, no legal advice or counseling, consumer-matter "
-                       "exclusions, ethics, and confidentiality.",
-        "sections": [
-            {"type": "page_hero", "eyebrow": "Policies", "h1": "Terms & disclaimers",
-             "lede": "Please read these important disclaimers before working with us."},
-            {"type": "disclaimers", "wf": "Pattern: tls/disclaimers", "tone": "white", "h2": "Important disclaimers",
-             "items": ["Transformative Leadership Systems provides neutral ADR services only. We do not provide legal "
-                       "advice, legal representation, or legal advocacy.",
-                       "Transformative Leadership Systems provides conflict‑coaching and organizational facilitation "
-                       "services only. We do not provide medical or mental health counseling or clinical therapeutic "
-                       "services.",
-                       CONSUMER_DISCLAIMER, ETHICS_DISCLAIMER],
-             "options_h": "Confidentiality",
-             "options": [
-                 {"label": "Option A · Owner's guide (09/13/2026)",
-                  "text": CONFIDENTIAL_GUIDE + " Transformative Leadership Systems practitioners abide by recognized "
-                                               "professional standards for mediators, arbitrators, and "
-                                               "conflict‑resolution professionals."},
-                 {"label": "Option B · Website brief", "text": RULE17},
-             ],
-             "draft": "Pending legal review: choose one confidentiality statement. Arbitration confidentiality differs "
-                      "from mediation confidentiality."},
-            {"type": "legal", "tone": "soft", "h2": "Terms of use", "draft": LEGAL_REVIEW, "outline": TERMS_OUTLINE},
-        ],
-    },
+    # Ethics & Compliance, Disclaimers and Privacy Policy moved to the domain root on the owner's
+    # instruction, 2026-09-16: one copy of each, serving both practices. They are built from
+    # content/hub.py, and the old per-practice URLs 301 there.
 ]

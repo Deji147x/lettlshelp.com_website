@@ -27,7 +27,7 @@ consistent wherever the form runs.
 ## Transformative Life Solutions
 
 - **Page:** `/begin-intake/`
-- **Send responses to:** services@lettlshelp.com
+- **Send responses to:** LifeSolutions@LetTLSHelp.com
 - **Questions:** 14
 
 ### Intro text shown above the form
@@ -220,7 +220,7 @@ _Roles include contractor, contract worker, service provider, client, vendor, su
 ## Transformative Leadership Systems
 
 - **Page:** `/begin-intake/`
-- **Send responses to:** support@lettlshelp.com
+- **Send responses to:** LeadershipSystems@LetTLSHelp.com
 - **Questions:** 18
 
 ### Intro text shown above the form

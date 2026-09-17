@@ -57,8 +57,8 @@ visitor having an email app and it is not private enough for screening answers.
 
 1. Use `docs/screening-form-spec.md` (generated from `content/screening.py`) to recreate the
    screening in a form plugin. Keep the field names.
-2. Route notifications to the site's address: Life → `services@lettlshelp.com`,
-   Leadership → `support@lettlshelp.com`.
+2. Route notifications to the site's address: Life → `LifeSolutions@LetTLSHelp.com`,
+   Leadership → `LeadershipSystems@LetTLSHelp.com`.
 3. Send mail through an authenticated service (Google Workspace SMTP or an SMTP plugin) so
    notifications aren't treated as spam. Confirm SPF, DKIM, and DMARC for `lettlshelp.com`.
 4. Turn on spam protection that doesn't profile visitors (honeypot or Cloudflare Turnstile ahead of

@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "content"))
 
 import common as C  # noqa: E402
+import hub  # noqa: E402
 import leadership  # noqa: E402
 import life  # noqa: E402
 from icons import ICONS  # noqa: E402
@@ -29,7 +30,9 @@ OUT = ROOT / "wireframes"
 DESIGN = ROOT / "design-system"
 YEAR = 2026
 WIREFRAME = True  # adds the review banner, the notes toggle, and local sister-site links
-MODULES = [life, leadership]
+# The hub is first: it owns the domain root, and the two practices sit in folders beneath it.
+MODULES = [hub, life, leadership]
+PRACTICES = [life, leadership]  # the two that have their own palette, images, and intake
 IMG_SIZES = "(min-width: 860px) 560px, 100vw"
 
 
@@ -53,16 +56,27 @@ def slugify(value):
 class Ctx:
     def __init__(self, site, page):
         self.site, self.page = site, page
-        self.up = "../" if page["slug"] else ""
+        # Depth of this page below its own site folder, then below the domain root.
+        self.up = "../" * len([p for p in page["slug"].split("/") if p])
+        self.root = "../" * site.get("root_depth", 0) + self.up
         self.a = self.up + "assets/"
-        self.manifest = json.loads((OUT / site["slug"] / "assets" / "img" / "manifest.json").read_text("utf-8"))
+        manifest_path = OUT / site["slug"] / "assets" / "img" / "manifest.json"
+        # The hub has no photographs of its own yet, so it has no image manifest.
+        self.manifest = json.loads(manifest_path.read_text("utf-8")) if manifest_path.exists() else {}
         self.ids = set()
 
     def href(self, target):
+        """Resolve a link target.
+
+        A leading "/" means "from the domain root", which is how the practice pages reach the
+        shared /ethics/, /disclaimers/ and /privacy-policy/ pages from any depth. Anything else
+        is relative to this site's own folder.
+        """
         if re.match(r"^(https?:|mailto:|tel:|#)", target):
             return target
-        path, _, frag = target.partition("#")
-        link = (self.up + (path + "/" if path else "")) or "./"
+        prefix = self.root if target.startswith("/") else self.up
+        path, _, frag = target.lstrip("/").partition("#")
+        link = (prefix + (path + "/" if path else "")) or "./"
         return link + ("#" + frag if frag else "")
 
     def url(self, slug=None):
@@ -125,9 +139,16 @@ def draft_flag(text, small=False):
 
 
 def slot_html(sl, heading_level=3):
+    """An integration or owner-to-supply placeholder.
+
+    heading_level=None renders the title as plain text. Use it where the slot sits beside an h1
+    (the hub hero) so the placeholder doesn't break the page's heading order.
+    """
     bullets = "".join(f"<li>{b}</li>" for b in sl.get("bullets", []))
+    title = (f'<p class="slot-title">{sl["title"]}</p>' if heading_level is None
+             else f'<h{heading_level}>{sl["title"]}</h{heading_level}>')
     return (f'<div class="slot" role="note"><span class="slot-label">{sl["label"]}</span>'
-            f'<h{heading_level}>{sl["title"]}</h{heading_level}><p>{sl["text"]}</p>'
+            f'{title}<p>{sl["text"]}</p>'
             f'{f"<ul class=softlist>{bullets}</ul>" if bullets else ""}</div>')
 
 
@@ -259,10 +280,11 @@ def r_crosslink(ctx, s):
 
 def r_cta(ctx, s):
     hid = ctx.unique_id(s["h2"])
+    # The hub has no mailbox of its own, so its CTA band shows the phone number alone.
+    mail = (f' &nbsp;·&nbsp; <a href="mailto:{ctx.site["email"]}" {cta("email-cta", ctx)}>'
+            f'{ctx.site["email"]}</a>') if ctx.site.get("email") else ""
     contact = (f'<p class="cta-contact">'
-               f'<a href="tel:{C.PHONE_TEL}" {cta("call-cta", ctx)}>Call or text {C.PHONE}</a>'
-               f' &nbsp;·&nbsp; <a href="mailto:{ctx.site["email"]}" {cta("email-cta", ctx)}>'
-               f'{ctx.site["email"]}</a></p>')
+               f'<a href="tel:{C.PHONE_TEL}" {cta("call-cta", ctx)}>Call or text {C.PHONE}</a>{mail}</p>')
     return section(dict(s, tone=s.get("tone", "deep")),
                    f'<div class="cta-box"><h2 id="{hid}">{s["h2"]}</h2><p>{s["text"]}</p>'
                    f'<div class="btn-row center">{button(ctx, s["primary"], "btn-primary")}</div>{contact}</div>',
@@ -287,6 +309,92 @@ def r_legal(ctx, s):
     head, hid = heading(ctx, s)
     blocks = "".join(f'<h3>{title}</h3><p class="placeholder-text">{note}</p>' for title, note in s["outline"])
     return section(s, f'<div class="prose legal">{head}{blocks}</div>', hid=hid)
+
+
+def r_credgroups(ctx, s):
+    """The founder's trainings, credentials, and affiliations, straight from the owner.
+
+    Each group's id is the anchor the About dropdown deep-links to, so the submenu and the page
+    can never fall out of step: both read content.common.FOUNDER_GROUPS.
+    """
+    blocks = []
+    for gid, title, items in s["groups"]:
+        rows = "".join(f"<li>{i}</li>" for i in items)
+        blocks.append(f'<div class="credgroup" id="{gid}"><h3>{title}</h3>'
+                      f'<ul class="checklist">{rows}</ul></div>')
+        ctx.ids.add(gid)
+    return section(s, f'<div class="credgroups">{"".join(blocks)}</div>')
+
+
+def r_practices(ctx, s):
+    """The two sister practices, presented as equals. Neither card outranks the other."""
+    head, hid = heading(ctx, s)
+    cards = []
+    for p in s["items"]:
+        services = "".join(f"<li>{x}</li>" for x in p["services"])
+        cards.append(
+            f'<li class="practice-card practice-{p["key"]}">'
+            f'<h3><a href="{ctx.href("/" + p["path"])}" {cta("practice-" + p["key"], ctx)}>{p["name"]}</a></h3>'
+            f'<ul class="checklist">{services}</ul>'
+            f'<p class="practice-scope">{p["scope"]}</p>'
+            f'<div class="btn-row">'
+            f'<a class="btn btn-primary" href="{ctx.href("/" + p["path"])}" '
+            f'{cta("explore-" + p["key"], ctx)}>{p["explore"]}</a>'
+            f'<a class="btn btn-secondary" href="{ctx.href("/" + p["path"] + "/begin-intake")}" '
+            f'{cta("screen-" + p["key"], ctx)}>Start screening</a></div>'
+            f'<p class="practice-email"><a href="mailto:{p["email"]}" '
+            f'{cta("email-" + p["key"], ctx)}>{p["email"]}</a></p></li>')
+    return section(s, f'{head}<ul class="grid practices" role="list">{"".join(cards)}</ul>', hid=hid)
+
+
+def r_router(ctx, s):
+    """Three questions that send a visitor to the right screening, or to the free referrals."""
+    head, hid = heading(ctx, s)
+    steps = "".join(f'<li><h3>{i["title"]}</h3><p>{i["text"]}</p></li>' for i in s["items"])
+    slot = f'<div class="section-slot">{slot_html(s["slot"])}</div>' if s.get("slot") else ""
+    return section(s, f'{head}<ol class="steps router-steps">{steps}</ol>{slot}', hid=hid)
+
+
+def r_hub_contact(ctx, s):
+    """Both practice addresses side by side, so nobody has to guess which one to write to."""
+    head, hid = heading(ctx, s)
+    cards = []
+    for p in s["items"]:
+        cards.append(f'<li class="card practice-{p["key"]}"><h3>{p["name"]}</h3><p>{p["scope"]}</p>'
+                     f'<p class="practice-email"><a href="mailto:{p["email"]}" '
+                     f'{cta("contact-email-" + p["key"], ctx)}>{p["email"]}</a></p></li>')
+    phone = (f'<p class="cta-contact"><a href="tel:{C.PHONE_TEL}" {cta("call-hub", ctx)}>'
+             f'Call or text {C.PHONE_INTL}</a></p>')
+    return section(s, f'{head}{phone}<ul class="grid" role="list">{"".join(cards)}</ul>', hid=hid)
+
+
+def r_notprovided(ctx, s):
+    """The five services neither practice provides. Verbatim from the owner's vision document."""
+    head, hid = heading(ctx, s)
+    rows = "".join(f"<li>{i}</li>" for i in s["items"])
+    return section(s, f'<div class="prose">{head}<p>{s["intro"]}</p>'
+                      f'<ul class="softlist not-provided">{rows}</ul></div>', hid=hid)
+
+
+def r_hub_hero(ctx, s):
+    """The hub hero. Unlike the practice heroes it has no photograph yet, so it shows a slot."""
+    copy = "".join([
+        f'<p class="eyebrow">{s["eyebrow"]}</p>' if s.get("eyebrow") else "",
+        f'<h1>{s["h1"]}</h1>',
+        f'<p class="tagline">{s["tagline"]}</p>' if s.get("tagline") else "",
+        f'<p class="lede">{s["lede"]}</p>' if s.get("lede") else "",
+        '<div class="btn-row">' + button(ctx, s["primary"], "btn-primary")
+        + f'<a class="btn btn-secondary" href="tel:{C.PHONE_TEL}" {cta("call-hero", ctx)}>'
+          f'Call or text {C.PHONE}</a></div>',
+    ])
+    if s.get("image"):
+        media = f'<div class="hero-media">{img(ctx, s["image"], s["alt"], eager=True)}</div>'
+    else:
+        # No heading in the hero slot: it sits beside the h1, and an h3 there would break
+        # the page's heading order.
+        media = f'<div class="hero-media">{slot_html(s["media_slot"], heading_level=None)}</div>'
+    return (f'<section class="hero" data-wf="{attr(s.get("wf", ""))}"><div class="container hero-grid">'
+            f'<div class="hero-copy">{copy}</div>{media}</div></section>')
 
 
 def r_posts(ctx, s):
@@ -446,6 +554,9 @@ RENDER = {
     "steps": r_steps, "notlist": r_notlist, "faq": r_faq, "list": r_list, "crosslink": r_crosslink,
     "cta": r_cta, "slot": r_slot, "disclaimers": r_disclaimers, "legal": r_legal, "posts": r_posts,
     "contact": r_contact, "intake": r_intake, "booking": r_booking,
+    # Hub and About additions, 2026-09-16.
+    "hub_hero": r_hub_hero, "practices": r_practices, "router": r_router, "hub_contact": r_hub_contact,
+    "notprovided": r_notprovided, "credgroups": r_credgroups,
 }
 
 
@@ -465,14 +576,21 @@ def schema(ctx):
         webpage["@type"] = ["WebPage", "FAQPage"]
         webpage["mainEntity"] = [{"@type": "Question", "name": strip_tags(it["q"]),
                                   "acceptedAnswer": {"@type": "Answer", "text": strip_tags(it["a"])}} for it in faqs]
+    contact_point = {"@type": "ContactPoint", "contactType": "customer service",
+                     "telephone": C.PHONE_SCHEMA, "availableLanguage": "English"}
+    org = {"@type": "ProfessionalService", "@id": org_id, "name": site["name"], "url": base,
+           "logo": base + "assets/logo.png", "image": base + "assets/og-image.jpg",
+           "description": site["footer_blurb"], "telephone": C.PHONE_SCHEMA,
+           "founder": {"@id": base + "#founder"},
+           "knowsAbout": site["keywords"], "contactPoint": contact_point}
+    if site.get("email"):
+        org["email"] = contact_point["email"] = site["email"]
+    else:
+        # The hub has no mailbox, and it is the parent of both practices rather than a peer.
+        org["subOrganization"] = [{"@type": "ProfessionalService", "name": p["name"], "url": p["href"],
+                                   "email": p["email"]} for p in hub.PRACTICES]
     graph = [
-        {"@type": "ProfessionalService", "@id": org_id, "name": site["name"], "url": base,
-         "logo": base + "assets/logo.png", "image": base + "assets/og-image.jpg",
-         "description": site["footer_blurb"], "telephone": C.PHONE_SCHEMA, "email": site["email"],
-         "founder": {"@id": base + "#founder"},
-         "knowsAbout": site["keywords"],
-         "contactPoint": {"@type": "ContactPoint", "contactType": "customer service", "telephone": C.PHONE_SCHEMA,
-                          "email": site["email"], "availableLanguage": "English"}},
+        org,
         {"@type": "WebSite", "@id": base + "#website", "url": base, "name": site["name"], "inLanguage": "en-US",
          "publisher": {"@id": org_id}},
         webpage,
@@ -553,46 +671,123 @@ def head(ctx):
 '''
 
 
+def nav_item(ctx, entry, n):
+    """One top-level navigation entry. A 2-tuple is a plain link; a 3-tuple opens a dropdown.
+
+    The dropdown is driven by a real <button aria-expanded>, and its first child links to the
+    parent page itself, so the submenu is a shortcut and never the only way in. With JavaScript
+    off, app.js never runs, the panel keeps its default open state, and nothing is unreachable.
+    """
+    slug, label = entry[0], entry[1]
+    children = entry[2] if len(entry) > 2 else None
+    current = ' aria-current="page"' if slug == ctx.page["slug"] else ""
+    if not children:
+        return f'<li><a href="{ctx.href(slug)}"{current}>{label}</a></li>'
+    panel_id = f"nav-panel-{n}"
+    rows = "".join(f'<li><a href="{ctx.href(child)}">{child_label}</a></li>' for child, child_label in children)
+    return (f'<li class="has-sub" data-nav-sub>'
+           f'<a href="{ctx.href(slug)}"{current}>{label}</a>'
+           f'<button class="nav-sub-toggle" type="button" aria-expanded="false" aria-controls="{panel_id}">'
+           f'<span class="visually-hidden">Show {strip_tags(label)} pages</span>'
+           f'<svg viewBox="0 0 10 7" aria-hidden="true" focusable="false"><path d="M1 1.5 5 5.5 9 1.5" '
+           f'fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" '
+           f'stroke-linejoin="round"/></svg></button>'
+           f'<ul class="nav-sub" id="{panel_id}">{rows}</ul></li>')
+
+
+def sister_band(ctx):
+    """A slim cross-practice strip directly under the nav.
+
+    The two practices are sisters, so each one promotes the other by name and by what it
+    actually does. It sits below the header rather than inside it: the nav already carries six
+    items and the consultation button, and a 60-character descriptor would wrap them.
+
+    The hub has no sister — it is the parent of both — so it gets no band.
+    """
+    if not ctx.site.get("sister"):
+        return ""
+    name, url, desc = ctx.site["sister"]
+    arrow = ('<svg class="sister-band-arrow" viewBox="0 0 16 12" aria-hidden="true" focusable="false">'
+             '<path d="M1 6h13M9.5 1.5 14 6l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" '
+             'stroke-linecap="round" stroke-linejoin="round"/></svg>')
+    # The name and the descriptor are separate flex items, so without an explicit label a screen
+    # reader runs them together ("…Leadership SystemsBusiness-to-business…").
+    label = f"Sister practice: {strip_tags(name)} — {strip_tags(desc)}"
+    return f'''<aside class="sister-band" data-wf="Pattern: tls/sister-band (header)">
+<div class="container">
+<a class="sister-band-link" href="{url}" {cta("sister-band", ctx, label)}>
+<span class="sister-band-eyebrow">Sister practice</span>
+<span class="sister-band-text"><strong>{name}</strong><span class="sister-band-desc">{desc}</span></span>
+{arrow}</a>
+</div>
+</aside>
+'''
+
+
 def header(ctx):
     site = ctx.site
-    items = []
-    for slug, label in site["nav"]:
-        current = ' aria-current="page"' if slug == ctx.page["slug"] else ""
-        items.append(f'<li><a href="{ctx.href(slug)}"{current}>{label}</a></li>')
+    items = [nav_item(ctx, entry, n) for n, entry in enumerate(site["nav"])]
     if site.get("nav_external"):
         url, label = site["nav_external"]
         items.append(f'<li><a href="{url}">{label} <span aria-hidden="true">↗</span></a></li>')
     banner = ('<div class="wf-banner" role="note">Wireframe preview, not the live site. '
               'Yellow “Review” notes need owner or legal sign-off.</div>') if WIREFRAME else ""
+    # The hub has no mailbox of its own, so its utility bar carries the phone number alone.
+    utility_email = (f'<a href="mailto:{site["email"]}" {cta("email-utility", ctx)}>{site["email"]}</a>'
+                     if site.get("email") else
+                     '<span class="utility-note">Virtual &amp; in‑person options</span>')
+    # No LetTLSHelp logo file exists yet, so the hub renders its brand as type.
+    mark = "" if site.get("wordmark") else f'<img src="{ctx.a}logo-mark.png" width="48" height="48" alt="">'
     return f'''<a class="skip-link" href="#main">Skip to main content</a>
 {banner}
-<div class="utility-bar"><div class="container"><a href="tel:{C.PHONE_TEL}" {cta("call-utility", ctx)}>Call or text {C.PHONE}</a><a href="mailto:{site["email"]}" {cta("email-utility", ctx)}>{site["email"]}</a></div></div>
+<div class="utility-bar"><div class="container"><a href="tel:{C.PHONE_TEL}" {cta("call-utility", ctx)}>Call or text {C.PHONE}</a>{utility_email}</div></div>
 <header class="site-header" data-wf="Template part: header (Site logo + Navigation block)">
 <div class="container header-inner">
-<a class="brand" href="{ctx.href("")}"><img src="{ctx.a}logo-mark.png" width="48" height="48" alt=""><span class="brand-text">{site["word_top"]}<small>{site["word_bottom"]}</small></span></a>
+<a class="brand{" brand-wordmark" if site.get("wordmark") else ""}" href="{ctx.href("")}">{mark}<span class="brand-text">{site["word_top"]}<small>{site["word_bottom"]}</small></span></a>
 <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav">Menu</button>
 <nav id="primary-nav" aria-label="Main"><ul>{"".join(items)}</ul></nav>
 <a class="btn btn-primary header-cta" href="{ctx.href(site["cta"][0])}" {cta("header-consultation", ctx)}>{site["cta"][1]}</a>
 </div>
 </header>
-'''
+{sister_band(ctx)}'''
 
 
 def footer(ctx):
     site = ctx.site
-    logo_w, logo_h = ctx.manifest["_logo"]
-    nav = "".join(f'<li><a href="{ctx.href(slug)}">{label}</a></li>' for slug, label in site["nav"])
-    policies = "".join(f'<li><a href="{ctx.href(slug)}">{label}</a></li>' for slug, label in site["policies"])
-    sister_name, sister_url, sister_desc = site["sister"]
+    # Footer navigation stays flat: top-level entries only, so it doesn't restate the dropdowns.
+    nav = "".join(f'<li><a href="{ctx.href(entry[0])}">{entry[1]}</a></li>' for entry in site["nav"])
+    # The policy pages live at the domain root and serve both practices, so they are root-relative.
+    policies = "".join(f'<li><a href="{ctx.href("/" + slug)}">{label}</a></li>' for slug, label in site["policies"])
+    if site.get("wordmark"):
+        brand = f'<p class="footer-wordmark">{site["word_top"]}</p>'
+    else:
+        logo_w, logo_h = ctx.manifest["_logo"]
+        brand = (f'<img class="footer-logo" src="{ctx.a}logo.png" width="{logo_w}" height="{logo_h}" '
+                 f'alt="{attr(site["name"])}">')
+    if site.get("email"):
+        email_row = (f'<li><a href="mailto:{site["email"]}" {cta("email-footer", ctx)}>{site["email"]}</a></li>'
+                     f'<li class="footer-muted">Virtual &amp; in‑person options</li>')
+    else:
+        # The hub offers both practice addresses rather than inventing a third mailbox.
+        email_row = "".join(
+            f'<li><a href="mailto:{p["email"]}" {cta("email-footer-" + p["key"], ctx)}>{p["email"]}</a></li>'
+            for p in hub.PRACTICES) + '<li class="footer-muted">Virtual &amp; in‑person options</li>'
+    if site.get("sister"):
+        sister_name, sister_url, sister_desc = site["sister"]
+        sister = (f'<h2 class="footer-h">Sister practice</h2><p><a href="{sister_url}">{sister_name}</a><br>'
+                  f'<span class="footer-muted">{sister_desc}</span></p>')
+    else:
+        rows = "".join(f'<li><a href="{ctx.href("/" + p["path"])}">{p["name"]}</a></li>' for p in hub.PRACTICES)
+        sister = f'<h2 class="footer-h">Our practices</h2><ul>{rows}</ul>'
     toggle = '<button class="wf-toggle" type="button" aria-pressed="false">Show wireframe notes</button>' if WIREFRAME else ""
     return f'''<footer class="site-footer" data-wf="Template part: footer">
 <div class="container footer-grid">
-<div><img class="footer-logo" src="{ctx.a}logo.png" width="{logo_w}" height="{logo_h}" alt="{attr(site["name"])}"><p>{site["footer_blurb"]}</p></div>
+<div>{brand}<p>{site["footer_blurb"]}</p></div>
 <nav aria-label="Footer"><h2 class="footer-h">Explore</h2><ul>{nav}</ul></nav>
-<div><h2 class="footer-h">Contact</h2><ul><li><a href="tel:{C.PHONE_TEL}" {cta("call-footer", ctx)}>Call or text {C.PHONE}</a></li><li><a href="mailto:{site["email"]}" {cta("email-footer", ctx)}>{site["email"]}</a></li><li class="footer-muted">Virtual &amp; in‑person options</li></ul>
+<div><h2 class="footer-h">Contact</h2><ul><li><a href="tel:{C.PHONE_TEL}" {cta("call-footer", ctx)}>Call or text {C.PHONE}</a></li>{email_row}</ul>
 <h2 class="footer-h">Follow</h2><ul><li><a href="{C.LINKEDIN}" rel="noopener">LinkedIn</a></li><li class="placeholder-link">Facebook (future)</li><li class="placeholder-link">Instagram (future)</li></ul></div>
 <div><h2 class="footer-h">Policies</h2><ul>{policies}</ul>
-<h2 class="footer-h">Sister practice</h2><p><a href="{sister_url}">{sister_name}</a><br><span class="footer-muted">{sister_desc}</span></p></div>
+{sister}</div>
 </div>
 <div class="container footer-legal"><p>{site["short_disclaimer"]}</p><p>© {YEAR} {site["name"]}. All rights reserved.</p></div>
 </footer>
@@ -608,25 +803,38 @@ def render_page(site, page):
     body = "".join(RENDER[s["type"]](ctx, s) for s in page["sections"])
     html = head(ctx) + header(ctx) + f'<main id="main" tabindex="-1">{body}</main>\n' + footer(ctx)
     if WIREFRAME:
-        # Preview only: sister-site links point at the local wireframe folders, so nothing 404s before
-        # launch. Canonical, Open Graph, sitemap, and schema URLs keep the real lettlshelp.com paths.
+        # Preview only: cross-practice links point at the local wireframe folders, so nothing 404s
+        # before launch. Canonical, Open Graph, sitemap, and schema URLs keep the real
+        # lettlshelp.com paths. Ctx.root already knows how deep this page sits.
         for other in MODULES:
-            if other.SITE is not site:
+            if other.SITE is not site and other.SITE["slug"]:
                 target = re.escape(site_url(other.SITE))
-                html = re.sub(rf'(<a\s[^>]*?href="){target}"', rf'\g<1>{ctx.up}../{other.SITE["slug"]}/"', html)
-    dest = OUT / site["slug"] / page["slug"] / "index.html" if page["slug"] else OUT / site["slug"] / "index.html"
+                local = ctx.root + other.SITE["slug"] + "/"
+                html = re.sub(rf'(<a\s[^>]*?href="){target}"', rf'\g<1>{local}"', html)
+    dest = OUT.joinpath(site["slug"], page["slug"], "index.html")
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(html, encoding="utf-8")
     return dest
 
 
+HUB_ICONS = ["favicon.ico", "favicon-16.png", "favicon-32.png", "apple-touch-icon.png",
+             "icon-192.png", "icon-512.png", "og-image.jpg"]
+
+
 def site_files(site, pages):
-    root = OUT / site["slug"]
+    root = OUT.joinpath(site["slug"])
     (root / "assets" / "css").mkdir(parents=True, exist_ok=True)
     (root / "assets" / "js").mkdir(parents=True, exist_ok=True)
     shutil.copy2(DESIGN / "base.css", root / "assets" / "css" / "base.css")
     shutil.copy2(DESIGN / site["css"], root / "assets" / "css" / site["css"])
     shutil.copy2(DESIGN / "app.js", root / "assets" / "js" / "app.js")
+    if site.get("wordmark"):
+        # Review: the hub borrows Life Solutions' icons and OG image until the owner supplies a
+        # LetTLSHelp mark of its own. tools/process_assets.py generates the per-practice set.
+        for name in HUB_ICONS:
+            source = OUT / "life-solutions" / "assets" / name
+            if source.exists():
+                shutil.copy2(source, root / "assets" / name)
     manifest = {"name": site["name"], "short_name": site["word_bottom"],
                 "start_url": site.get("base", "") + "/", "display": "browser",
                 "background_color": "#FFFFFF", "theme_color": site["theme_color"],
@@ -635,11 +843,40 @@ def site_files(site, pages):
     (root / "site.webmanifest").write_text(json.dumps(manifest, indent=2), encoding="utf-8")
 
 
+def redirect_rules():
+    """301s for every URL that moved when the root became the shared hub.
+
+    Life Solutions used to BE the root, so each of its pages moved down a level; Ethics,
+    Privacy and Terms & Disclaimers moved up from both practices into one shared copy.
+    """
+    # A slug the hub now serves must NOT be redirected, or the hub's own page becomes
+    # unreachable. /contact/ is the live case: it used to be Life Solutions' contact page and
+    # is now the hub's routing one, which is a fine landing place for the old traffic.
+    hub_slugs = {p["slug"] for p in hub.PAGES}
+    moved_out = [p["slug"] for p in life.PAGES if p["slug"] and p["slug"] not in hub_slugs]
+    rules = ["# Life Solutions moved from the root into /life-solutions/",
+             "# (/contact/ is left alone: the hub serves it now)"]
+    rules += [f"RewriteRule ^{slug}/?$ /life-solutions/{slug}/ [L,R=301]" for slug in moved_out]
+    rules.append("# Policy pages folded into one shared copy at the root")
+    for practice in ("life-solutions", "leadership-systems"):
+        rules.append(f"RewriteRule ^{practice}/ethics/?$ /ethics/ [L,R=301]")
+        rules.append(f"RewriteRule ^{practice}/terms-disclaimers/?$ /disclaimers/ [L,R=301]")
+        rules.append(f"RewriteRule ^{practice}/privacy-policy/?$ /privacy-policy/ [L,R=301]")
+    rules.append("# Old root policy URLs (Life Solutions served them before the move)")
+    rules.append("RewriteRule ^terms-disclaimers/?$ /disclaimers/ [L,R=301]")
+    rules.append("# Resources was retired on 2026-09-16")
+    for practice in ("life-solutions", "leadership-systems"):
+        rules.append(f"RewriteRule ^{practice}/resources/?$ /{practice}/ [L,R=410]")
+    rules.append("RewriteRule ^resources/?$ / [L,R=410]")
+    return "\n".join(rules)
+
+
 def shared_files(modules):
     """One sitemap, robots.txt, and .htaccess: both practices share lettlshelp.com."""
     domain = modules[0].SITE["domain"]
     host = domain.split("//", 1)[1]
     today = date.today().isoformat()
+    redirects = redirect_rules()
     urls = "".join(f'  <url><loc>{site_url(m.SITE, p["slug"])}</loc><lastmod>{today}</lastmod></url>\n'
                    for m in modules for p in m.PAGES)
     (OUT / "sitemap.xml").write_text('<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -679,6 +916,15 @@ Header always set Cross-Origin-Opener-Policy "same-origin"
 Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; frame-src https://calendar.google.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
 </IfModule>
 
+# --- Moved pages (301) ---------------------------------------------------------------
+# The domain root became the shared hub on 2026-09-16, so Life Solutions moved out of it,
+# and Ethics / Disclaimers / Privacy moved in from both practices. Keep these until the
+# old URLs stop appearing in Search Console.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+{redirects}
+</IfModule>
+
 # Block access to files that should never be public
 <FilesMatch "^(\\.env|\\.git.*|wp-config\\.php|readme\\.html|license\\.txt|xmlrpc\\.php)$">
 Require all denied
@@ -704,34 +950,40 @@ ExpiresByType text/html "access plus 0 seconds"
 """, encoding="utf-8")
 
 
-def hub(sites):
+def page_index():
+    """A developer list of every page, for previewing. Not part of the site.
+
+    The domain root is the real Home page now, so this can no longer live at index.html.
+    """
     blocks = []
-    for module in sites:
+    for module in MODULES:
         s = module.SITE
-        links = "".join(f'<li><a href="{s["slug"]}/{p["slug"] + "/" if p["slug"] else ""}">{p["label"]}</a></li>'
+        prefix = s["slug"] + "/" if s["slug"] else ""
+        links = "".join(f'<li><a href="{prefix}{p["slug"] + "/" if p["slug"] else ""}">{p["label"]}</a></li>'
                         for p in module.PAGES)
         blocks.append(f'<section><h2>{s["name"]}</h2><p><code>{site_url(s)}</code></p><ul>{links}</ul></section>')
     html = f'''<!doctype html>
 <html lang="en-US"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TLS Wireframes</title>
+<title>TLS wireframe page index</title>
 <style>body{{font:16px/1.6 system-ui,sans-serif;margin:0;background:#F4F7F8;color:#1C2B33}}main{{max-width:960px;margin:0 auto;padding:3rem 1.5rem}}
 .grid{{display:grid;gap:1.5rem;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}}section{{background:#fff;border-radius:16px;padding:1.5rem 1.75rem;border:1px solid #D5E0E2}}
 h1{{font-family:Georgia,serif;color:#003853}}h2{{font-family:Georgia,serif;margin:.2rem 0}}a{{color:#006B7B}}li{{margin:.25rem 0}}</style></head>
-<body><main><h1>TLS website wireframes</h1>
-<p>Two separate WordPress sites sharing one design system. Open any page; use “Show wireframe notes” (bottom right) to see the planned WordPress block pattern for each section. Yellow “Review” notes need owner or legal sign-off. Full review: <code>docs/consistency-review.md</code>.</p>
+<body><main><h1>Page index</h1>
+<p>Every page in the build, for review. The real entry point is <a href="./">the Home page</a>. Use “Show wireframe notes” (bottom right) on any page to see the planned WordPress block pattern for each section. Yellow “Review” notes need owner or legal sign-off; the full list is in <code>docs/consistency-review.md</code>.</p>
 <div class="grid">{"".join(blocks)}</div></main></body></html>
 '''
-    (OUT / "index.html").write_text(html, encoding="utf-8")
+    (OUT / "page-index.html").write_text(html, encoding="utf-8")
 
 
 def main():
-    sites = MODULES
-    for module in sites:
+    # Practices first: the hub borrows their icon set until it has one of its own.
+    for module in PRACTICES + [hub]:
         site_files(module.SITE, module.PAGES)
+    for module in MODULES:
         for page in module.PAGES:
             print("wrote", render_page(module.SITE, page).relative_to(ROOT))
-    shared_files(sites)
-    hub(sites)
+    shared_files(MODULES)
+    page_index()
 
 
 if __name__ == "__main__":

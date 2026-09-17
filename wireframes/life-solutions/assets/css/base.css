@@ -113,6 +113,88 @@ a:hover { color: var(--c-primary-hover); }
   #primary-nav a { padding: .8rem 1rem; font-size: 1.05rem; }
 }
 
+/* Sister-practice band.
+   Sits under the header, not in it: the nav is already six items plus the consultation
+   button, and the descriptor is too long to ride alongside them. The whole strip is one
+   link, so the target is the full width of the bar rather than a few words. */
+.sister-band { background: var(--c-soft-1); border-bottom: 1px solid var(--c-line); }
+.sister-band-link {
+  display: flex; align-items: center; gap: .9rem; flex-wrap: wrap;
+  min-height: 52px; padding: .6rem 0; text-decoration: none; color: var(--c-text);
+}
+.sister-band-eyebrow {
+  flex-shrink: 0; font-size: .7rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--c-deep); background: #FFFFFF; border-radius: 999px; padding: .3rem .7rem;
+}
+.sister-band-text { display: flex; align-items: baseline; gap: .6rem; flex-wrap: wrap; flex-grow: 1; }
+.sister-band-text strong { font-family: var(--f-head); font-size: 1.02rem; font-weight: 600; color: var(--c-deep); }
+.sister-band-desc { font-size: .9rem; color: var(--c-muted); }
+.sister-band-arrow { flex-shrink: 0; width: 16px; height: 12px; color: var(--c-primary); transition: transform .16s ease; }
+.sister-band-link:hover { background: transparent; }
+.sister-band-link:hover .sister-band-text strong { text-decoration: underline; }
+.sister-band-link:hover .sister-band-arrow { transform: translateX(3px); }
+
+/* Narrow screens: the label takes its own row and the name stacks above the descriptor, but
+   the arrow stays beside the text rather than wrapping onto a fourth line by itself. */
+@media (max-width: 860px) {
+  .sister-band-link {
+    display: grid; grid-template-columns: 1fr auto; align-items: center;
+    gap: .5rem .9rem; padding: .75rem 0;
+  }
+  .sister-band-eyebrow { grid-column: 1 / -1; justify-self: start; }
+  .sister-band-text { flex-direction: column; gap: .15rem; }
+  .sister-band-desc { font-size: .85rem; line-height: 1.4; }
+}
+@media (max-width: 480px) {
+  .sister-band-eyebrow { font-size: .65rem; padding: .25rem .55rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sister-band-arrow { transition: none; }
+  .sister-band-link:hover .sister-band-arrow { transform: none; }
+}
+
+/* Navigation dropdowns.
+   Without JavaScript the panel simply stays in the flow, so every child page is reachable;
+   .has-js-nav (set by app.js) is what turns it into a real dropdown. */
+#primary-nav .has-sub { position: relative; display: flex; align-items: center; gap: 0; }
+.nav-sub-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; min-height: 44px; padding: 0 .3rem;
+  border: 0; background: transparent; color: var(--c-muted); cursor: pointer;
+}
+.nav-sub-toggle svg { width: 10px; height: 7px; transition: transform .16s ease; }
+.has-sub.is-open > .nav-sub-toggle { color: var(--c-primary); }
+.has-sub.is-open > .nav-sub-toggle svg { transform: rotate(180deg); }
+.nav-sub {
+  list-style: none; margin: .25rem 0 .6rem; padding: 0 0 0 .9rem;
+  border-left: 2px solid var(--c-accent);
+}
+.nav-sub a { font-size: .95rem; color: var(--c-text); }
+
+.has-js-nav #primary-nav .nav-sub { display: none; }
+.has-js-nav #primary-nav .has-sub.is-open > .nav-sub { display: block; }
+
+@media (min-width: 1101px) {
+  .has-js-nav #primary-nav .nav-sub {
+    position: absolute; top: 100%; left: 0; z-index: 30;
+    min-width: 17rem; margin: 0; padding: .5rem;
+    background: #FFFFFF; border: 1px solid var(--c-line);
+    border-radius: var(--radius-small, 10px); box-shadow: var(--shadow); border-left-width: 1px;
+  }
+  .has-js-nav #primary-nav .nav-sub a { display: block; padding: .6rem .75rem; border-radius: 8px; }
+}
+
+@media (max-width: 1100px) {
+  #primary-nav .has-sub { flex-wrap: wrap; }
+  #primary-nav .has-sub > a { flex-grow: 1; }
+  .nav-sub { width: 100%; margin-left: 1rem; }
+  .nav-sub a { padding: .65rem 1rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-sub-toggle svg { transition: none; }
+}
+
 /* Buttons */
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: .5rem;
@@ -312,6 +394,46 @@ form.wf-form { background: #FFFFFF; border: 1px solid var(--c-line); border-radi
   display: grid; place-items: center; background: var(--c-soft-1); color: var(--c-muted); font-size: .85rem;
 }
 .post-card .eyebrow::before { display: none; }
+
+/* Hub: the two sister practices, presented as equals.
+   Each card takes its accent from --c-card-accent (set per practice in hub.css), so neither
+   one reads as the primary and the other as an afterthought. */
+.grid.practices { grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 1.75rem; }
+.practice-card {
+  background: #FFFFFF; border: 1px solid var(--c-line); border-top: 4px solid var(--c-card-accent, var(--c-primary));
+  border-radius: var(--radius); padding: 1.75rem 1.75rem 2rem;
+  display: flex; flex-direction: column; gap: 1rem;
+}
+.practice-card h3 { margin: 0; font-size: 1.4rem; line-height: 1.25; }
+.practice-card h3 a { color: var(--c-card-accent, var(--c-deep)); text-decoration: none; }
+.practice-card h3 a:hover { text-decoration: underline; }
+.practice-card .checklist { margin: 0; }
+.practice-scope { margin: 0; color: var(--c-muted); font-size: .95rem; }
+.practice-card .btn-row { margin-top: auto; }
+.practice-card .btn-primary { background: var(--c-card-accent, var(--c-primary)); border-color: var(--c-card-accent, var(--c-primary)); }
+.practice-email { margin: 0; font-size: .9rem; word-break: break-word; }
+
+/* The three-question screening router on the hub. */
+.router-steps { counter-reset: router; }
+.router-steps > li h3 { margin-top: .4rem; }
+
+/* Founder trainings, credentials, and affiliations (About, both practices). */
+.credgroups { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+.credgroup {
+  background: #FFFFFF; border: 1px solid var(--c-line); border-left: 3px solid var(--c-accent);
+  border-radius: 0 var(--radius) var(--radius) 0; padding: 1.35rem 1.5rem;
+  scroll-margin-top: 6rem;  /* so the nav dropdown's deep link doesn't land under the header */
+}
+.credgroup h3 { margin: 0 0 .75rem; font-size: 1.1rem; }
+.credgroup .checklist { margin: 0; }
+
+/* The five services neither practice provides (Disclaimers). */
+.not-provided li { font-weight: 600; }
+
+/* Brand wordmark: used where no logo file exists (the hub). */
+.brand-wordmark .brand-text { font-size: 1.35rem; letter-spacing: .01em; }
+.footer-wordmark { font: 600 1.6rem/1.2 var(--f-head); color: #FFFFFF; margin: 0 0 1.1rem; }
+.utility-note { color: #C5D2D6; }
 
 /* Footer */
 .site-footer { background: var(--c-footer); color: #E6EDF0; padding-top: 4rem; font-size: .95rem; }

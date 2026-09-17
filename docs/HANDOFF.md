@@ -12,8 +12,8 @@ Written 2026-09-14 when this project moved out of an unrelated session. **Read t
   `https://lettlshelp.com/`, Leadership Systems at `https://lettlshelp.com/leadership-systems/`.
   Canonicals, sitemap, schema, and the shared Search Console token all use those URLs. The vanity
   domains come later: change `domain`/`base` in `content/{life,leadership}.py` and 301-redirect.
-- **Transformative Life Solutions** (later TransformativeLifeSolutions.com): family, parenting, divorce/separation, interpersonal, and workplace (non-consumer-facing only) mediation, plus conflict coaching. Contact: **services@lettlshelp.com**.
-- **Transformative Leadership Systems** (later TransformativeLeadershipSystems.com): B2B-only arbitration and med-arb, business mediation, negotiation support (including NDAs), and leadership conflict coaching. Contact: **support@lettlshelp.com**. The name is **Systems** (the June draft and signature say "Solutions"; that's wrong).
+- **Transformative Life Solutions** (later TransformativeLifeSolutions.com): family, parenting, divorce/separation, interpersonal, and workplace (non-consumer-facing only) mediation, plus conflict coaching. Contact: **LifeSolutions@LetTLSHelp.com**.
+- **Transformative Leadership Systems** (later TransformativeLeadershipSystems.com): B2B-only arbitration and med-arb, business mediation, negotiation support (including NDAs), and leadership conflict coaching. Contact: **LeadershipSystems@LetTLSHelp.com**. The name is **Systems** (the June draft and signature say "Solutions"; that's wrong).
 - The owner's personal Gmail is no longer published on either site.
 
 ## Source materials (in ~/Downloads)
@@ -30,9 +30,9 @@ Written 2026-09-14 when this project moved out of an unrelated session. **Read t
 | Repo | One repo, both sites, shared design system; deployed as two separate WordPress installs; hosting target about $10/mo |
 | Confidentiality disclaimer | Show both options on each Terms page, flagged "pending legal review" (the owner's guide wording vs. the brief's "Maryland Rule 17" wording) |
 | Keywords | Split by service. The Life site mentions arbitration, negotiation, and NDAs only as links to Leadership Systems |
-| Header | "Leadership Systems ↗" was **removed** from the Life header at the user's request; the sister site is linked from the footer and cross-link bands only |
+| Header | **Reversed 2026-09-17.** The plain "Leadership Systems ↗" nav link had been removed at the owner's request, leaving only the footer and cross-link bands. It is back as a **sister-practice band under the header**: the practice name plus its one-line descriptor, with the whole strip as a single link. It is **mutual** — each practice promotes the other. It sits below the nav rather than inside it because the nav already carries six items plus the consultation button, and a 60-character descriptor would wrap them. The hub gets no band: it is the parent of both and already lists them as dropdowns. Rendered by `sister_band()` in `tools/build.py` from each site's `SITE["sister"]` |
 | SEO checklist (user-supplied) | Every item is implemented and enforced by `tools/seo_check.py`: meta titles ≤60 chars, descriptions, alt text, one H1 plus heading order, canonical, og:image, schema, sitemap, robots, HTTPS `.htaccess`, WebP, internal links, mobile. **Avoid:** noindex (removed) and broken links (0) |
-| Git workflow | **As of 2026-09-15, every change goes through a pull request:** create a branch off `main`, commit, push the branch, and open a PR into `main` with `gh pr create`. Don't push directly to `main`. (Commits up to `63a1baf` went straight to `main` before this rule.) The repo is **PUBLIC**, so never commit API keys or passwords. The GA4 Measurement ID and GSC token are fine |
+| Git workflow | **Superseded 2026-09-17: no pull requests.** Commit and push straight to `main` on the new repo, `github.com/Deji147x/lettlshelp.com_website`. (The 2026-09-15 PR rule applied to the old `lettlshelp.com` repo and is no longer in force.) The repo is **PUBLIC**, so never commit API keys or passwords. The GA4 Measurement ID and GSC token are fine |
 | Content rule | Never invent credentials, testimonials, client stories, or statistics. Unsourced copy carries a `draft` note that renders as a yellow "Review" flag |
 
 ## Current state (2026-09-16)

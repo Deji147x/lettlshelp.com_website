@@ -3,17 +3,18 @@
 Sources: 'TLS_Website Development Guide_ 09132026.pdf' (current) and the owner's brief.
 Copy that isn't in those sources carries a `draft` note so it gets owner/legal sign-off.
 """
-from common import (COMMERCE_SLOT, CONSUMER_DISCLAIMER, CREDENTIALS_SLOT,
-                    ETHICS_DISCLAIMER, FOUNDER_PHOTO_SLOT, GSC_TOKEN, LEGAL_REVIEW, PHONE,
-                    PRIVACY_OUTLINE, REFERRALS, RULE17, TERMS_OUTLINE)
+from common import (COMMERCE_SLOT, FOUNDER_GROUPS, FOUNDER_PHOTO_SLOT, GSC_TOKEN, PHONE,
+                    REFERRALS, ROOT_POLICIES)
+from common import EMAIL_LIFE as C_EMAIL_LIFE
 from screening import (LIFE_INTRO, LIFE_QUESTIONS, ROLES, STOP_REFERRALS, STOP_TEXT, STOP_TITLE)
 
-# Owner's instruction (2026-09-16): every call to action on this site goes to this address.
-EMAIL = "services@lettlshelp.com"
+# Owner's instruction (vision document, 2026-09-16): every call to action on this site goes here.
+EMAIL = C_EMAIL_LIFE
 
-# Both practices share lettlshelp.com for now (owner's decision, 2026-09-16). Life Solutions sits
-# at the root; Leadership Systems sits under /leadership-systems/. When the vanity domains go live,
-# change "domain"/"base" here and 301-redirect the old paths.
+# lettlshelp.com's root is now a shared hub for both practices (vision document, 2026-09-16), so
+# Life Solutions moved from "" to /life-solutions/ and the two sections are finally symmetrical.
+# The old root paths 301-redirect here; see the .htaccess that tools/build.py writes.
+# When the vanity domains go live, change "domain"/"base" here and redirect again.
 SISTER_URL = "https://lettlshelp.com/leadership-systems/"
 
 SITE = {
@@ -23,7 +24,8 @@ SITE = {
     "word_top": "Transformative",
     "word_bottom": "Life Solutions",
     "domain": "https://lettlshelp.com",
-    "base": "",  # served at the domain root; future: TransformativeLifeSolutions.com
+    "base": "/life-solutions",  # future: TransformativeLifeSolutions.com
+    "root_depth": 1,  # folders between this site's pages and the domain root
     "css": "life.css",
     "fonts": "https://fonts.googleapis.com/css2?family=Lora:wght@500;600&family=Open+Sans:wght@400;600;700"
              "&family=Playfair+Display:ital@1&display=swap",
@@ -42,11 +44,24 @@ SITE = {
                         "mental health counseling services.",
     "keywords": ["mediation", "mediator", "divorce mediation", "separation agreement", "parenting plan",
                  "prenuptial agreement", "conflict coaching", "ADR", "alternative dispute resolution"],
-    "nav": [("", "Home"), ("about", "About"), ("services", "Services"), ("how-it-works", "How It Works"),
-            ("resources", "Resources"), ("faq", "FAQ"), ("contact", "Contact")],
+    # A 2-tuple is a plain link; a 3-tuple adds a dropdown. Every child is a real anchor on the
+    # parent's own page, so the submenu is a shortcut and never the only way in.
+    "nav": [
+        ("", "Home"),
+        ("about", "About", [("about#our-founder", "Our Founder"),
+                            ("about#completed-trainings", "Completed Trainings"),
+                            ("about#credentials", "Credentials"),
+                            ("about#affiliations", "Affiliations")]),
+        ("services", "Services", [("services#family", "Family & Parenting Mediation"),
+                                  ("services#interpersonal", "Interpersonal Mediation"),
+                                  ("services#workplace", "Workplace Facilitation"),
+                                  ("services#coaching", "One‑on‑One Conflict Coaching")]),
+        ("how-it-works", "How It Works"),
+        ("faq", "FAQ"),
+        ("contact", "Contact"),
+    ],
     "nav_external": None,  # sister site is linked from the footer and cross-link bands, not the header
-    "policies": [("ethics", "Ethics & Compliance"), ("privacy-policy", "Privacy Policy"),
-                 ("terms-disclaimers", "Terms & Disclaimers")],
+    "policies": ROOT_POLICIES,  # shared with Leadership Systems at the domain root
     "sister": ("Transformative Leadership Systems", SISTER_URL,
                "Business-to-business arbitration, mediation, and negotiation support"),
     "cta": ("contact", "Request a Consultation"),
@@ -266,14 +281,16 @@ PAGES = [
                  {"icon": "lock", "title": "Confidential process",
                   "text": "Mediation‑related communication remains confidential."},
              ],
-             "slot": CREDENTIALS_SLOT},
+             # The owner supplied real trainings, credentials, and affiliations in the vision
+             # document, so the old "owner to supply" placeholder is gone; this links to them.
+             "link": ("about#credentials", "See credentials & affiliations")},
             {"type": "notlist", "wf": "Pattern: tls/scope-notice", "tone": "white", "h2": "What we don't handle",
              "intro": "To protect clients and maintain the integrity of state processes, we do not handle:",
              "bullets": ["Consumer‑business disputes (refunds, billing, purchases, warranties, service agreements)",
                          "Housing, auto sales or repair, home improvement, or contractor disputes",
                          "Any matter connected to Maryland consumer protection laws or the Office of the Attorney "
                          "General"],
-             "link": ("ethics", "Read our ethics commitment")},
+             "link": ("/ethics", "Read our ethics commitment")},
             {"type": "faq", "wf": "Pattern: tls/faq-preview (Details blocks)", "tone": "soft", "center": True,
              "eyebrow": "FAQ", "h2": "Common questions",
              "items": [FAQ[1], FAQ[11], FAQ[3]], "link": ("faq", "See all questions")},
@@ -290,17 +307,19 @@ PAGES = [
             {"type": "page_hero", "eyebrow": "About", "h1": "About Transformative Life Solutions",
              "lede": "A private ADR, mediation, and conflict coaching practice rooted in dignity, respect, and "
                      "ethical service."},
-            {"type": "split", "wf": "Pattern: tls/founder", "tone": "white", "eyebrow": "Our founder",
-             "h2": "Founded by Tanika L. Smith",
+            {"type": "split", "id": "our-founder", "wf": "Pattern: tls/founder", "tone": "white",
+             "eyebrow": "Our founder", "h2": "Founded by Tanika L. Smith",
              "paras": ["Transformative Life Solutions was founded by Tanika L. Smith, a seasoned alternative dispute "
                        "resolution (ADR) practitioner and communication strategist."],
-             "media_slot": FOUNDER_PHOTO_SLOT, "slot": CREDENTIALS_SLOT},
-            {"type": "cards", "wf": "Pattern: tls/pillars", "tone": "soft", "center": True, "eyebrow": "Our approach",
+             "media_slot": FOUNDER_PHOTO_SLOT},
+            {"type": "credgroups", "wf": "Pattern: tls/founder-credentials", "tone": "soft",
+             "groups": FOUNDER_GROUPS},
+            {"type": "cards", "wf": "Pattern: tls/pillars", "tone": "white", "center": True, "eyebrow": "Our approach",
              "h2": "Three pillars guide our work", "items": PILLARS, "draft": PILLAR_DRAFT},
-            {"type": "text", "wf": "Pattern: tls/text", "tone": "white", "h2": "An ethics‑aligned separation",
+            {"type": "text", "wf": "Pattern: tls/text", "tone": "soft", "h2": "An ethics‑aligned separation",
              "paras": ["Transformative Life Solutions maintains a strict ethics‑aligned separation. All services are "
                        "structured to avoid conflicts of interest and to protect the integrity of state processes."],
-             "link": ("ethics", "Ethics & Compliance")},
+             "link": ("/ethics", "Ethics & Compliance")},
             {"type": "split", "wf": "Pattern: tls/media-text", "tone": "mist", "reverse": True,
              "h2": "Meeting people where they are",
              "paras": ["We serve clients with virtual and in‑person options, working with families, couples, "
@@ -356,7 +375,7 @@ PAGES = [
                                  "<strong>negotiation support</strong> for a business or nonprofit?"),
             {"type": "notlist", "wf": "Pattern: tls/scope-notice", "tone": "mist", "h2": "What we do not handle",
              "intro": "Transformative Life Solutions does not mediate:", "bullets": NOT_HANDLED,
-             "link": ("ethics", "Ethics & Compliance")},
+             "link": ("/ethics", "Ethics & Compliance")},
             {"type": "slot", "tone": "white", **COMMERCE_SLOT},
             CTA,
         ],
@@ -387,30 +406,14 @@ PAGES = [
                          "or legal advocacy.",
                          "We provide coaching and training services only. We do not provide medical or mental health "
                          "counseling services."],
-             "link": ("terms-disclaimers", "Read all disclaimers")},
+             "link": ("/disclaimers", "Read all disclaimers")},
             CTA,
         ],
     },
-    {
-        "slug": "resources", "label": "Resources", "schema_type": "CollectionPage",
-        "title": "Mediation Resources | Transformative Life Solutions",
-        "description": "Articles and guides on divorce mediation, parenting plans, communication, conflict "
-                       "coaching, and alternative dispute resolution.",
-        "sections": [
-            {"type": "page_hero", "eyebrow": "Resources", "h1": "Mediation and conflict resolution resources",
-             "lede": "Guides and articles on mediation, parenting plans, communication, and conflict coaching."},
-            {"type": "posts", "wf": "Query Loop: Posts (blog index)", "tone": "white", "h2": "Latest articles",
-             "cats": ["Divorce & Separation Mediation", "Parenting Plans", "Conflict Coaching",
-                      "Communication Skills", "ADR Basics"],
-             "draft": "Blog architecture only. Categories target the SEO keywords; post cards fill in automatically "
-                      "from WordPress. No articles are published yet."},
-            {"type": "list", "wf": "Pattern: tls/referrals", "tone": "soft", "h2": "Community resources",
-             "intro": "Organizations that may be helpful:", "items": REFERRALS,
-             "draft": "Add verified website links for each resource."},
-            {"type": "slot", "tone": "white", **COMMERCE_SLOT},
-            CTA,
-        ],
-    },
+    # Resources (the blog index) was removed on the owner's instruction, 2026-09-16. The renderer
+    # and the "posts" section type are still in tools/build.py, so restoring it is a paste job —
+    # see git history for the original block. Note that without it the practice ranks on its ten
+    # static pages alone, with no route to long-tail search terms.
     {
         "slug": "faq", "label": "FAQ",
         "title": "Mediation FAQ | Transformative Life Solutions",
@@ -456,69 +459,8 @@ PAGES = [
                       "secure WordPress form (encrypted storage and retention rules) and confirm what is kept."},
         ],
     },
-    {
-        "slug": "ethics", "label": "Ethics & Compliance",
-        "title": "Ethics & Compliance | Transformative Life Solutions",
-        "description": "How Transformative Life Solutions maintains neutrality and compliance with Maryland Public "
-                       "Ethics Law, screens every matter, and provides free referrals.",
-        "sections": [
-            {"type": "page_hero", "eyebrow": "Ethics & Compliance", "h1": "Our commitment to ethical practice",
-             "lede": "Neutral, transparent, and structured to avoid conflicts of interest."},
-            {"type": "text", "tone": "white", "h2": "Operating within Maryland Public Ethics Law",
-             "paras": ["Transformative Life Solutions operates within full compliance of Maryland Public Ethics Law "
-                       "and maintains strict boundaries to avoid conflicts of interest."]},
-            {"type": "text", "tone": "soft", "h2": "What we focus on",
-             "paras": ["Transformative Life Solutions does not provide services related to consumer‑business disputes "
-                       "or any matter that falls under Maryland consumer protection laws or the authority of the "
-                       "Office of the Attorney General.",
-                       "We focus exclusively on private, non‑commercial conflicts such as family, interpersonal, "
-                       "workplace (non‑consumer‑facing companies and organizations), and community matters."]},
-            {"type": "notlist", "tone": "white", "h2": "What we do not handle",
-             "intro": "Transformative Life Solutions does not mediate:", "bullets": NOT_HANDLED},
-            {"type": "text", "tone": "mist", "h2": "Screening protocol",
-             "paras": ["To determine client eligibility, Transformative Life Solutions uses written and verbal "
-                       "screening processes and maintains documentation of them. If we are unable to facilitate "
-                       "your matter, we will explain why and provide free supportive referrals."]},
-            {"type": "list", "tone": "white", "h2": "Suggested referrals", "items": REFERRALS},
-            CTA,
-        ],
-    },
-    {
-        "slug": "privacy-policy", "label": "Privacy Policy",
-        "title": "Privacy Policy | Transformative Life Solutions",
-        "description": "How Transformative Life Solutions collects, uses, and protects information shared through "
-                       "this website, including contact forms, screening, and analytics.",
-        "sections": [
-            {"type": "page_hero", "eyebrow": "Policies", "h1": "Privacy policy",
-             "lede": "How we collect, use, and protect your information."},
-            {"type": "legal", "tone": "white", "h2": "Policy outline", "draft": LEGAL_REVIEW,
-             "outline": PRIVACY_OUTLINE},
-        ],
-    },
-    {
-        "slug": "terms-disclaimers", "label": "Terms & Disclaimers",
-        "title": "Terms & Disclaimers | Transformative Life Solutions",
-        "description": "Important disclaimers: no legal advice or representation, no medical or mental health "
-                       "counseling, consumer-matter exclusions, ethics, and confidentiality.",
-        "sections": [
-            {"type": "page_hero", "eyebrow": "Policies", "h1": "Terms & disclaimers",
-             "lede": "Please read these important disclaimers before working with us."},
-            {"type": "disclaimers", "wf": "Pattern: tls/disclaimers", "tone": "white", "h2": "Important disclaimers",
-             "items": ["Transformative Life Solutions provides mediation services only. We do not provide legal "
-                       "advice, legal representation, or legal advocacy.",
-                       "Transformative Life Solutions provides coaching and training services only. We do not provide "
-                       "medical, mental health, or counseling services.",
-                       CONSUMER_DISCLAIMER, ETHICS_DISCLAIMER],
-             "options_h": "Confidentiality",
-             "options": [
-                 {"label": "Option A · Owner's guide (09/13/2026)",
-                  "text": CONFIDENTIAL_GUIDE + " This mediation practitioner abides by the Maryland Standards of "
-                                               "Conduct for Mediators."},
-                 {"label": "Option B · Website brief", "text": RULE17},
-             ],
-             "draft": "Pending legal review: choose one confidentiality statement. The two options cite different "
-                      "authorities, and Option B also covers arbitration."},
-            {"type": "legal", "tone": "soft", "h2": "Terms of use", "draft": LEGAL_REVIEW, "outline": TERMS_OUTLINE},
-        ],
-    },
+    # Ethics & Compliance, Disclaimers and Privacy Policy moved to the domain root on the owner's
+    # instruction, 2026-09-16: one copy of each, serving both practices. They are built from
+    # content/hub.py, and the old per-practice URLs 301 there. Keeping two near-identical legal
+    # pages would also have split the domain's authority between them.
 ]

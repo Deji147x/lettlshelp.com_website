@@ -17,6 +17,83 @@
     });
   }
 
+  // Navigation dropdowns (About, Services, and the hub's two practice menus).
+  // The markup is a real <button aria-expanded> plus a <ul>, so this only has to open and
+  // close it. With JavaScript off nothing runs, the CSS leaves the panel in the flow, and
+  // every child page stays reachable.
+  var subs = document.querySelectorAll('[data-nav-sub]');
+  if (subs.length) {
+    document.documentElement.classList.add('has-js-nav');
+    var openSub = null;
+    var pinned = null;   // opened by click: hovering away must not close it again
+    var closeTimer = null;
+
+    function canHover() {
+      return window.matchMedia('(hover: hover)').matches;
+    }
+
+    function close(item, moveFocus) {
+      if (!item) return;
+      var button = item.querySelector('.nav-sub-toggle');
+      item.classList.remove('is-open');
+      if (button) {
+        button.setAttribute('aria-expanded', 'false');
+        if (moveFocus) button.focus();
+      }
+      if (openSub === item) openSub = null;
+      if (pinned === item) pinned = null;
+    }
+
+    function open(item) {
+      if (openSub && openSub !== item) close(openSub);
+      var button = item.querySelector('.nav-sub-toggle');
+      item.classList.add('is-open');
+      if (button) button.setAttribute('aria-expanded', 'true');
+      openSub = item;
+    }
+
+    Array.prototype.forEach.call(subs, function (item) {
+      var button = item.querySelector('.nav-sub-toggle');
+      if (!button) return;
+
+      // Clicking PINS the panel open. Without pinning, hover has already opened it by the
+      // time the click lands, so a plain toggle would read the panel as open and shut it
+      // again — the menu would flicker closed under the cursor.
+      button.addEventListener('click', function () {
+        if (pinned === item) { close(item); return; }
+        open(item);
+        pinned = item;
+      });
+
+      // Pointer users get hover, with a short delay on leaving so the cursor can travel
+      // from the trigger down into the panel without it snapping shut.
+      item.addEventListener('mouseenter', function () {
+        if (!canHover()) return;
+        window.clearTimeout(closeTimer);
+        open(item);
+      });
+      item.addEventListener('mouseleave', function () {
+        if (!canHover() || pinned === item) return;
+        closeTimer = window.setTimeout(function () { close(item); }, 220);
+      });
+
+      // Leaving the group by keyboard closes it; Escape closes it and returns focus.
+      item.addEventListener('focusout', function (event) {
+        if (!item.contains(event.relatedTarget)) close(item);
+      });
+      item.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && item.classList.contains('is-open')) {
+          event.stopPropagation();
+          close(item, true);
+        }
+      });
+    });
+
+    document.addEventListener('click', function (event) {
+      if (openSub && !openSub.contains(event.target)) close(openSub);
+    });
+  }
+
   var key = 'tls-wireframe-notes';
   var button = document.querySelector('.wf-toggle');
   function setNotes(on) {

@@ -1,42 +1,64 @@
-# TLS websites: Transformative Life Solutions & Transformative Leadership Systems
+# LetTLSHelp.com: one home, two sister practices
 
-Wireframes and the design system for two related but separate WordPress websites:
+Wireframes and the design system for **lettlshelp.com** — a shared hub with a practice section
+beneath it for each of two sister ADR practices:
 
-- **Transformative Life Solutions**: family-centered mediation, interpersonal mediation, workplace facilitation, conflict coaching
-- **Transformative Leadership Systems**: B2B arbitration & med-arb, business mediation, negotiation support, conflict coaching
+- **Transformative Life Solutions** (`/life-solutions/`): family-centered mediation, interpersonal mediation, workplace facilitation, conflict coaching
+- **Transformative Leadership Systems** (`/leadership-systems/`): B2B arbitration & med-arb, business mediation, negotiation support, conflict coaching
 
-**Both launch on lettlshelp.com for now** (owner's decision, 2026-09-16): Life Solutions at
-`https://lettlshelp.com/`, Leadership Systems at `https://lettlshelp.com/leadership-systems/`.
-TransformativeLifeSolutions.com and TransformativeLeadershipSystems.com come later; change each
-site's `domain` and `base` in `content/` then, and 301-redirect the old paths.
+The **root is the hub** (owner's vision document, 2026-09-16). It introduces both practices,
+routes visitors into the right screening, and owns the three pages that speak for both:
+`/ethics/`, `/disclaimers/` and `/privacy-policy/`. TransformativeLifeSolutions.com and
+TransformativeLeadershipSystems.com come later; change each site's `domain` and `base` in
+`content/` then, and 301-redirect the old paths.
 
-Owner: Tanika L. Smith · services@lettlshelp.com (Life) · support@lettlshelp.com (Leadership) · +1 (240) 650-0007
+Owner: Tanika L. Smith · LifeSolutions@LetTLSHelp.com (Life) · LeadershipSystems@LetTLSHelp.com (Leadership) · +1 (240) 650-0007
+
+The hub has **no mailbox of its own by design**: it leads with the phone number and offers both
+practice addresses, so nobody has to guess which one to write to.
 
 ## Status
-**Phase 1: HTML wireframe (this commit).** All 10 pages per site are branded, responsive, and SEO-ready, with integration slots for screening, booking, and e-commerce.
+**Phase 1: HTML wireframe.** Every page is branded, responsive, and SEO-ready, with integration slots for screening, booking, and e-commerce.
 **Phase 2: WordPress block theme** (`tls-base` parent + two child themes), after the owner approves the wireframe.
 
 Yellow **"Review"** notes on the pages mark copy that needs owner or legal sign-off. The full list is in [`docs/consistency-review.md`](docs/consistency-review.md).
 
+## URL map
+```
+/                      Home (hub)          /life-solutions/           /leadership-systems/
+/ethics/                                   /life-solutions/about/     /leadership-systems/about/
+/disclaimers/                              …/services/                …/services/
+/privacy-policy/                           …/how-it-works/            …/how-it-works/
+/contact/   (routes to a practice)         …/faq/                     …/faq/
+                                           …/contact/                 …/contact/
+                                           …/begin-intake/            …/begin-intake/
+```
+Resources (the blog index) was retired on the owner's instruction, 2026-09-16.
+
 ## Structure
 ```
-content/         Page copy for each site (life.py, leadership.py) + shared contact/disclaimers (common.py)
-design-system/   base.css (shared components), life.css / leadership.css (brand layers), app.js, tokens.json
-tools/           process_assets.py (logos, favicons, OG images, photos) · build.py (renders wireframes) · icons.py
+content/         hub.py (shared root) · life.py · leadership.py · common.py (contact, founder, disclaimers) · screening.py
+design-system/   base.css (shared components), hub.css / life.css / leadership.css (brand layers), app.js, tokens.json
+tools/           process_assets.py (logos, favicons, OG images, photos) · build.py (renders wireframes) · seo_check.py · icons.py
 brand/           Original logo and palette files per site
-wireframes/      Generated output: index.html hub, life-solutions/, leadership-systems/
-docs/            consistency-review.md · architecture.md · seo-plan.md
+wireframes/      Generated output: the hub at the root, life-solutions/, leadership-systems/
+docs/            consistency-review.md · architecture.md · seo-plan.md · HANDOFF.md
 ```
 
 ## Preview
 ```bash
 python -m http.server 8765 --directory wireframes
 ```
-Open http://127.0.0.1:8765/ and click **Show wireframe notes** (bottom right) to see the planned WordPress pattern for each section.
+Open http://127.0.0.1:8765/ for the hub home, or `/page-index.html` for a list of every page.
+Click **Show wireframe notes** (bottom right) to see the planned WordPress pattern for each section.
 
 ## Rebuild after editing copy
 ```bash
 python tools/build.py
+```
+Then run the SEO gate, which must pass before you commit:
+```bash
+python tools/seo_check.py
 ```
 To regenerate images after new logos or photos land in `~/Downloads` (requires Pillow):
 ```bash

@@ -19,6 +19,7 @@ from urllib.parse import urljoin, urlparse
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "content"))
 
+import hub  # noqa: E402
 import leadership  # noqa: E402
 import life  # noqa: E402
 
@@ -138,7 +139,7 @@ def check_page(site, page, root, inbound):
 
 def check_site(module):
     site, pages = module.SITE, module.PAGES
-    root = OUT / site["slug"]
+    root = OUT.joinpath(site["slug"])
     inbound = {p["slug"]: 0 for p in pages}
     for page in pages:
         check_page(site, page, root, inbound)
@@ -178,7 +179,8 @@ def check_site(module):
 
 
 def main():
-    for module in (life, leadership):
+    # The hub owns the domain root; the two practices sit in folders beneath it.
+    for module in (hub, life, leadership):
         check_site(module)
     images = [f for f in OUT.rglob("*") if f.suffix.lower() in {".jpg", ".webp", ".png"}]
     webp = sum(f.stat().st_size for f in images if f.suffix == ".webp")

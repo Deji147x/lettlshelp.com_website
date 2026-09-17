@@ -1,39 +1,62 @@
-# Architecture: two WordPress sites, one design system
+# Architecture: one hub, two practice sections, one design system
 
 ## Sites
 
-| | Transformative Life Solutions | Transformative Leadership Systems |
-|---|---|---|
-| URL (now) | https://lettlshelp.com/ | https://lettlshelp.com/leadership-systems/ |
-| Domain (later) | https://transformativelifesolutions.com | https://transformativeleadershipsystems.com |
-| Focus | Family, interpersonal, workplace (non-consumer) mediation; conflict coaching | B2B arbitration, med-arb, business mediation, negotiation support, coaching |
-| Palette | Teal / navy-teal / gold | Leadership blue / teal-green / ocher |
-| Fonts | Lora + Open Sans | Merriweather + Lato |
-| Email | services@lettlshelp.com | support@lettlshelp.com |
+| | Hub (LetTLSHelp) | Transformative Life Solutions | Transformative Leadership Systems |
+|---|---|---|---|
+| URL | https://lettlshelp.com/ | https://lettlshelp.com/life-solutions/ | https://lettlshelp.com/leadership-systems/ |
+| Domain (later) | stays the parent | https://transformativelifesolutions.com | https://transformativeleadershipsystems.com |
+| Focus | Introduces both; routes visitors into the right screening | Family, interpersonal, workplace (non-consumer) mediation; conflict coaching | B2B arbitration, med-arb, business mediation, negotiation support, coaching |
+| Palette | Deep navy-teal / gold (neutral) | Teal / navy-teal / gold | Leadership blue / teal-green / ocher |
+| Fonts | Lora + Open Sans | Lora + Open Sans | Merriweather + Lato |
+| Email | none by design — shows both | LifeSolutions@LetTLSHelp.com | LeadershipSystems@LetTLSHelp.com |
 
-**While both sites share lettlshelp.com**, run them as **one WordPress install**: Life Solutions
-pages at the root and Leadership Systems pages under `/leadership-systems/`, with the two child
-themes applied per section (or one theme switching palette by path). That keeps hosting to a single
-site and one SSL certificate. When the vanity domains are ready, split Leadership Systems into its
-own install and 301-redirect `/leadership-systems/*` to the new domain.
+**The root is a shared hub** (owner's vision document, 2026-09-16). Life Solutions used to be the
+root and moved down into `/life-solutions/`, so the two practices are now symmetrical: same depth,
+same page set, same treatment. `tools/build.py` writes the 301s for every URL that moved.
 
-Once separated, the two sites are **separate WordPress installs** on one hosting plan that allows multiple sites. Each has its own logo, palette, content, images, navigation, SEO, and contact details. They don't share a database, so either one can move, grow, or add e-commerce without affecting the other.
+Run the whole thing as **one WordPress install**: hub pages at the root, each practice under its
+own folder, with the child themes applied per section (or one theme switching palette by path).
+That keeps hosting to a single site and one SSL certificate. When the vanity domains are ready,
+split each practice into its own install and 301-redirect its folder to the new domain.
 
-## URL map (same on both sites)
+Once separated, the two practices are **separate WordPress installs** on one hosting plan that allows multiple sites. Each has its own logo, palette, content, images, navigation, SEO, and contact details. They don't share a database, so either one can move, grow, or add e-commerce without affecting the other. The hub stays at the root as the parent.
+
+## URL map
 
 ```
-/                     Home
-/about/               About
-/services/            Services (#family #interpersonal #workplace #coaching | #arbitration #mediation #negotiation #coaching)
-/how-it-works/        How It Works  (screening slot)
-/resources/           Blog index (Posts page) → /resources/<post-slug>/
-/faq/                 FAQ (FAQPage schema)
-/contact/             Contact (form + booking slot)
-/ethics/              Ethics & Compliance
-/privacy-policy/      Privacy Policy
-/terms-disclaimers/   Terms & Disclaimers
+Hub (shared, speaks for both)          Each practice (identical structure)
+/                      Home            <practice>/                Home
+/ethics/               Ethics &        <practice>/about/          About (#our-founder
+                       Compliance                                  #completed-trainings
+/disclaimers/          Disclaimers                                 #credentials #affiliations)
+/privacy-policy/       Privacy Policy  <practice>/services/       Services (anchored per service)
+/contact/              Contact,        <practice>/how-it-works/   How It Works (screening slot)
+                       routes to a     <practice>/faq/            FAQ (FAQPage schema)
+                       practice        <practice>/contact/        Contact (form + booking slot)
+                                       <practice>/begin-intake/   Screening intake
 ```
-The header navigation stays on-site. Each footer links to the sister practice, and cross-link bands on Home and Services point to it.
+`<practice>` is `/life-solutions/` or `/leadership-systems/`.
+
+**Retired 2026-09-16:** `/resources/` (the blog index), on the owner's instruction. Without it the
+domain ranks on its static pages alone, with no route to long-tail search terms; the renderer and
+the `posts` section type are still in `tools/build.py` if it comes back.
+
+**Folded into the hub:** the per-practice `/ethics/`, `/terms-disclaimers/` and `/privacy-policy/`
+pages became one copy of each at the root, so there are no near-duplicate legal pages competing
+with each other.
+
+## Navigation
+
+- **About** and **Services** are dropdowns in each practice header. Every child is a real anchor on
+  the parent's own page, so the submenu is a shortcut and never the only way in. The toggle is a
+  real `<button aria-expanded>`; with JavaScript off the panel stays in the flow and nothing is
+  unreachable. On mobile it becomes an accordion inside the existing menu.
+- A **sister-practice band** sits directly under the header on both practices, each promoting the
+  other by name and descriptor. It is below the nav, not in it: the nav already carries six items
+  plus the consultation button.
+- The hub nav lists both practices as dropdowns; it has no sister band, being the parent of both.
+- Each footer links to the sister practice, and cross-link bands on Home and Services point to it.
 
 ## Theme plan (phase 2, after wireframe approval)
 
@@ -89,7 +112,7 @@ These are marked on the wireframe as dashed "Integration slot" boxes, backed by 
   allows a single site, with one SSL certificate. A plan allowing **at least 2 websites** is only needed
   once the vanity domains launch. Intro prices usually rise at renewal, so **check renewal pricing**.
 - Domains are billed yearly and separately.
-- **Email:** services@lettlshelp.com and support@lettlshelp.com are the published addresses. The cheapest
+- **Email:** LifeSolutions@LetTLSHelp.com and LeadershipSystems@LetTLSHelp.com are the published addresses. The cheapest
   option is mailboxes or forwarding included with the hosting plan for lettlshelp.com. **Google Workspace
   is per user, per month on top of hosting**, which likely exceeds the $10 target; if Workspace is wanted
   for calendar booking, one user with the other domains added as alias domains keeps it to a single seat.

@@ -6,8 +6,23 @@ website guides. Don't add claims, credentials, or statistics the owner hasn't su
 
 FOUNDER = "Tanika L. Smith"
 LINKEDIN = "https://www.linkedin.com/in/lettlshelp/"
-# Each site sets its own contact address (see life.py / leadership.py); the owner's personal
-# Gmail is no longer published on either site.
+
+# Owner's instruction (vision document, 2026-09-16): one address per practice, both on
+# lettlshelp.com. These replace services@ and support@. The casing is the owner's; mail
+# delivery ignores it, but it reads better in the header and footer.
+EMAIL_LIFE = "LifeSolutions@LetTLSHelp.com"
+EMAIL_LEADERSHIP = "LeadershipSystems@LetTLSHelp.com"
+# The shared hub pages deliberately carry NO address of their own: they lead with the phone
+# number and offer both practice addresses, so nobody has to guess which one to write to.
+
+# Policy and compliance pages live once, at the domain root, and serve both practices.
+# Every footer links to them through Ctx.root_href(), so the path is correct from any depth.
+ROOT_POLICIES = [
+    ("ethics", "Ethics & Compliance"),
+    ("disclaimers", "Disclaimers"),
+    ("privacy-policy", "Privacy Policy"),
+]
+
 PHONE = "(240) 650-0007"
 PHONE_INTL = "+1 (240) 650-0007"
 PHONE_TEL = "+12406500007"
@@ -41,6 +56,93 @@ REFERRALS = [
     "Better Business Bureau",
     "Crisis Text Line",
 ]
+
+# ---------------------------------------------------------------------------
+# Founder background. Supplied by the owner in the vision document (2026-09-16),
+# so this is real content, not a placeholder. Both practice sections render the
+# same three groups from here so they can never drift apart.
+# ---------------------------------------------------------------------------
+FOUNDER_TRAININGS = [
+    "40‑Hour Basic Mediation Training",
+    "24‑Hour Child Access Mediation Training",
+    "8‑Hour Re‑Entry Mediation Training",
+    "Marital Separation Training",
+    "36‑Hours Crisis Counseling",
+]
+FOUNDER_CREDENTIALS = [
+    "Advanced‑Degree Communications Scholar",
+]
+FOUNDER_AFFILIATIONS = [
+    "Member, Maryland Program for Mediator Excellence (MPME)",
+    "Former Day of Trial Mediator, Maryland Judiciary’s Mediation and Conflict Resolution Office (MACRO)",
+    "Rostered Arbitrator, Financial Industry Regulatory Authority (FINRA)",
+    "Member, ADR Section, Maryland State Bar Association",
+]
+
+# The three groups above, as the About page renders them. The ids are the anchors the
+# About dropdown deep-links to, so the submenu and the page stay in step automatically.
+FOUNDER_GROUPS = [
+    ("completed-trainings", "Completed Trainings Include", FOUNDER_TRAININGS),
+    ("credentials", "Credentials", FOUNDER_CREDENTIALS),
+    ("affiliations", "Affiliations Include", FOUNDER_AFFILIATIONS),
+]
+
+# ---------------------------------------------------------------------------
+# Ethics & Compliance and Disclaimers now live once, at the root, for both
+# practices. Every paragraph below is verbatim from the owner's vision document.
+# ---------------------------------------------------------------------------
+ETHICS_COMMITMENT = (
+    "We operate in full compliance with Maryland Public Ethics Law §5‑502 and maintain strict "
+    "boundaries to avoid conflicts of interest."
+)
+ETHICS_COMPLIANCE_SAFE = (
+    "We do not provide services related to consumer‑business disputes or any matter that falls under "
+    "Maryland consumer protection laws or the authority of the Office of the Attorney General."
+)
+ETHICS_SCOPE_LIFE = (
+    "Through Transformative Life Solutions, we focus exclusively on private, non‑commercial conflicts "
+    "such as family, interpersonal, workplace (non‑consumer‑facing companies and organizations), and "
+    "community matters."
+)
+ETHICS_SCOPE_LEADERSHIP = (
+    "Through Transformative Leadership Systems, we focus exclusively on private, non‑consumer‑facing "
+    "organizational conflicts, including internal workplace disputes, leadership and partnership "
+    "conflicts, board governance issues, and vendor–supplier disputes between non‑consumer‑facing entities."
+)
+ETHICS_SCREENING = (
+    "We use written and verbal screening processes to determine client eligibility and maintain "
+    "documentation of all screening decisions."
+)
+ETHICS_REFERRAL_INTRO = (
+    "If we are unable to facilitate your matter, we will explain why and provide free supportive "
+    "referrals. Suggested referrals may include:"
+)
+
+NOT_PROVIDED = [
+    "Legal advice",
+    "Legal representation",
+    "Legal advocacy",
+    "Medical or mental health counseling",
+    "Clinical therapeutic services",
+]
+NOT_PROVIDED_INTRO = (
+    "Through Transformative Life Solutions and Transformative Leadership Systems, we provide neutral "
+    "ADR, conflict‑coaching, and organizational facilitation services only. We do not provide:"
+)
+CONFIDENTIALITY_ACT = (
+    "In accordance with the Maryland Mediation and Confidentiality Act, all mediation‑related "
+    "communication will remain confidential."
+)
+PROFESSIONAL_STANDARDS = (
+    "Our practitioners abide by recognized professional standards for mediators, arbitrators, and "
+    "conflict‑resolution professionals including the Maryland Standards of Conduct for Mediators and "
+    "Maryland Uniform Arbitration Act (MUAA)."
+)
+CONFIDENTIALITY_REVIEW = (
+    "Two wordings are on the table and an attorney must choose one. The vision document names the "
+    "“Maryland Mediation and Confidentiality Act”; the earlier brief cites Maryland Rule 17 for the "
+    "same point. See docs/consistency-review.md."
+)
 
 INTAKE_SLOT = {
     "label": "Integration slot · Screening tool",
