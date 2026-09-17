@@ -29,6 +29,34 @@ Header always set Cross-Origin-Opener-Policy "same-origin"
 Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; frame-src https://calendar.google.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
 </IfModule>
 
+# --- Moved pages (301) ---------------------------------------------------------------
+# The domain root became the shared hub on 2026-09-16, so Life Solutions moved out of it,
+# and Ethics / Disclaimers / Privacy moved in from both practices. Keep these until the
+# old URLs stop appearing in Search Console.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+# Life Solutions moved from the root into /life-solutions/
+# (/contact/ is left alone: the hub serves it now)
+RewriteRule ^about/?$ /life-solutions/about/ [L,R=301]
+RewriteRule ^services/?$ /life-solutions/services/ [L,R=301]
+RewriteRule ^how-it-works/?$ /life-solutions/how-it-works/ [L,R=301]
+RewriteRule ^faq/?$ /life-solutions/faq/ [L,R=301]
+RewriteRule ^begin-intake/?$ /life-solutions/begin-intake/ [L,R=301]
+# Policy pages folded into one shared copy at the root
+RewriteRule ^life-solutions/ethics/?$ /ethics/ [L,R=301]
+RewriteRule ^life-solutions/terms-disclaimers/?$ /disclaimers/ [L,R=301]
+RewriteRule ^life-solutions/privacy-policy/?$ /privacy-policy/ [L,R=301]
+RewriteRule ^leadership-systems/ethics/?$ /ethics/ [L,R=301]
+RewriteRule ^leadership-systems/terms-disclaimers/?$ /disclaimers/ [L,R=301]
+RewriteRule ^leadership-systems/privacy-policy/?$ /privacy-policy/ [L,R=301]
+# Old root policy URLs (Life Solutions served them before the move)
+RewriteRule ^terms-disclaimers/?$ /disclaimers/ [L,R=301]
+# Resources was retired on 2026-09-16
+RewriteRule ^life-solutions/resources/?$ /life-solutions/ [L,R=410]
+RewriteRule ^leadership-systems/resources/?$ /leadership-systems/ [L,R=410]
+RewriteRule ^resources/?$ / [L,R=410]
+</IfModule>
+
 # Block access to files that should never be public
 <FilesMatch "^(\.env|\.git.*|wp-config\.php|readme\.html|license\.txt|xmlrpc\.php)$">
 Require all denied

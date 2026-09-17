@@ -1,10 +1,10 @@
 {
-  "name": "Transformative Life Solutions",
-  "short_name": "Life Solutions",
-  "start_url": "/life-solutions/",
+  "name": "LetTLSHelp",
+  "short_name": "Transformative Life Solutions & Leadership Systems",
+  "start_url": "/",
   "display": "browser",
   "background_color": "#FFFFFF",
-  "theme_color": "#006B7B",
+  "theme_color": "#003853",
   "icons": [
     {
       "src": "assets/icon-192.png",

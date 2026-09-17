@@ -1,0 +1,26 @@
+/* LetTLSHelp.com hub: the brand layer for the shared pages that speak for both practices.
+   Deliberately neutral — it borrows the deep navy-teal and warm gold that both palettes can
+   live beside, so neither practice looks like the parent.
+   Review: the owner has not supplied a LetTLSHelp wordmark or palette of its own. When one
+   lands, this file and brand/hub/ are the only things that change. */
+.site-hub {
+  --c-primary: #006B7B;       /* Dark Teal-Blue (shared with Life Solutions) */
+  --c-primary-hover: #003853; /* Deep Navy-Teal */
+  --c-deep: #003853;          /* Deep Navy-Teal: headers, CTA band, footer */
+  --c-accent: #D4AF37;        /* Warm Gold: rules and icons only, never text */
+  --c-soft-1: #E8F0F1;
+  --c-soft-2: #F4F7F8;
+  --c-line: #D5E0E2;
+  --c-text: #1C2B33;
+  --c-muted: #46585F;
+  --c-footer: #1C2B33;
+  --brand-word: #003853;
+  --f-head: "Lora", Georgia, "Times New Roman", serif;
+  --f-body: "Open Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-accent: "Playfair Display", Georgia, serif;
+}
+
+/* Each practice card on the hub carries its own accent so the two read as equals,
+   not as a primary and a secondary. */
+.site-hub .practice-life { --c-card-accent: #006B7B; --c-card-tint: #E8F0F1; }
+.site-hub .practice-leadership { --c-card-accent: #0F2040; --c-card-tint: #EAF1F3; }
