@@ -1,0 +1,10 @@
+# Secrets never belong in this PUBLIC repo (API keys, WP salts, SMTP/app passwords)
+.env
+.env.*
+*.key
+wp-config.php
+
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

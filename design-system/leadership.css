@@ -1,0 +1,20 @@
+/* Transformative Leadership Systems: brand layer (palette: brand/leadership-systems/color-palette.jpg) */
+.site-leadership {
+  --c-primary: #0F2040;       /* Deep Leadership Blue */
+  --c-primary-hover: #2B4E47; /* Growth Teal-Green */
+  --c-deep: #0F2040;
+  --c-accent: #C89B5F;        /* Leadership Ocher-Yellow: accents only, never text */
+  --c-soft-1: #EAF1F3;        /* tint of Systems Light Blue-Grey #8CB5C2 */
+  --c-soft-2: #F8F8F8;        /* Base Off-White Canvas */
+  --c-line: #DDE3E3;
+  --c-text: #1A2233;
+  --c-muted: #51595C;         /* Neutral Grey Text #7A7A7A darkened to pass WCAG AA body text */
+  --c-footer: #0F2040;
+  --brand-word: #0F2040;
+  --f-head: "Merriweather", Georgia, "Times New Roman", serif;
+  --f-body: "Lato", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --f-accent: "Playfair Display", Georgia, serif;
+}
+.site-leadership h1, .site-leadership h2, .site-leadership h3 { font-weight: 700; }
+.site-leadership .eyebrow { color: #2B4E47; }
+.site-leadership .icon { color: #2B4E47; }
