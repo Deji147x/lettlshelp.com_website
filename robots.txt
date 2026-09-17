@@ -1,0 +1,5 @@
+# Production robots.txt (WordPress/SEO plugin generates the live one)
+User-agent: *
+Allow: /
+
+Sitemap: https://lettlshelp.com/sitemap.xml

@@ -1,0 +1,53 @@
+# Production .htaccess for lettlshelp.com (Apache / LiteSpeed, e.g. Hostinger).
+# Place these rules ABOVE the "# BEGIN WordPress" block; leave the WordPress block unchanged.
+
+<IfModule mod_rewrite.c>
+RewriteEngine On
+# Enforce HTTPS (301)
+RewriteCond %{HTTPS} !=on
+RewriteCond %{HTTP:X-Forwarded-Proto} !https
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+# One canonical host: https://lettlshelp.com (no www)
+RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+</IfModule>
+
+<IfModule mod_headers.c>
+# HSTS: add "; includeSubDomains; preload" only once every subdomain serves HTTPS
+Header always set Strict-Transport-Security "max-age=31536000"
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), interest-cohort=()"
+Header always set Cross-Origin-Opener-Policy "same-origin"
+
+# Content Security Policy for the PUBLIC pages. Allows Google Fonts, Google Analytics/Tag Manager,
+# and the Google Calendar booking embed. 'unsafe-inline' is needed for the JSON-LD schema and the
+# analytics snippet; drop it once those use nonces.
+# Test before enabling: wp-admin relies on inline scripts, so scope this to the front end
+# (<If "%{REQUEST_URI} !~ m#^/wp-admin#">) or set it from the theme instead.
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://www.googletagmanager.com https://*.google-analytics.com; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; frame-src https://calendar.google.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+</IfModule>
+
+# Block access to files that should never be public
+<FilesMatch "^(\.env|\.git.*|wp-config\.php|readme\.html|license\.txt|xmlrpc\.php)$">
+Require all denied
+</FilesMatch>
+
+# Compression + browser caching (Core Web Vitals)
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/html text/css text/plain text/xml application/xml application/javascript application/json application/ld+json image/svg+xml
+</IfModule>
+<IfModule mod_expires.c>
+ExpiresActive On
+ExpiresByType image/webp "access plus 1 year"
+ExpiresByType image/jpeg "access plus 1 year"
+ExpiresByType image/png "access plus 1 year"
+ExpiresByType image/x-icon "access plus 1 year"
+ExpiresByType text/css "access plus 1 month"
+ExpiresByType application/javascript "access plus 1 month"
+ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+
+# When TransformativeLifeSolutions.com / TransformativeLeadershipSystems.com go live, 301-redirect
+# these paths to the new domains and update "domain"/"base" in content/{life,leadership}.py.
