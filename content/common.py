@@ -114,7 +114,7 @@ ETHICS_SCREENING = (
     "documentation of all screening decisions."
 )
 ETHICS_REFERRAL_INTRO = (
-    "If we are unable to facilitate your matter, we will explain why and provide free supportive "
+    "If we are unable to facilitate your matter, we will provide free supportive "
     "referrals. Suggested referrals may include:"
 )
 

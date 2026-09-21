@@ -3,7 +3,7 @@
 Sources: 'TLS_Website Development Guide_ 09132026.pdf' (current) and the owner's brief.
 Copy that isn't in those sources carries a `draft` note so it gets owner/legal sign-off.
 """
-from common import (COMMERCE_SLOT, FOUNDER_GROUPS, FOUNDER_PHOTO_SLOT, GSC_TOKEN, PHONE,
+from common import (COMMERCE_SLOT, FOUNDER_GROUPS, GSC_TOKEN, PHONE,
                     REFERRALS, ROOT_POLICIES)
 from common import EMAIL_LIFE as C_EMAIL_LIFE
 from screening import (LIFE_INTRO, LIFE_QUESTIONS, ROLES, STOP_REFERRALS, STOP_TEXT, STOP_TITLE)
@@ -99,7 +99,7 @@ FAQ = [
           "General."},
     {"q": "What happens if my matter isn't a fit?",
      "a": "We use written and verbal screening to determine eligibility. If we are unable to facilitate your "
-          "matter, we will explain why and provide free supportive referrals."},
+          "matter, we will provide free supportive referrals."},
     {"q": "Do you meet virtually or in person?",
      "a": "Both. We serve clients with virtual and in-person options."},
     {"q": "Do you offer arbitration, negotiation support, or help with NDAs?",
@@ -181,7 +181,7 @@ STEPS = [
     {"title": "Eligibility screening",
      "text": "Written and verbal screening confirms your matter is one we can ethically facilitate."},
     {"title": "Confirm next steps",
-     "text": "If it's a fit, we plan next steps together. If not, we explain why and share free supportive referrals."},
+     "text": "If it's a fit, we plan next steps together. If not, we share free supportive referrals."},
     {"title": "Meet virtually or in person", "text": "Choose the setting that feels right for you."},
 ]
 STEPS_DRAFT = ("Steps are drawn from the guide's Screening Protocol and Contact sections. Owner to confirm the order "
@@ -277,7 +277,7 @@ PAGES = [
                  {"icon": "clipboard", "title": "Careful screening",
                   "text": "Written and verbal screening confirms each matter is a good fit before we begin."},
                  {"icon": "check", "title": "Free referrals",
-                  "text": "If we can't take your matter, we'll explain why and share free supportive referrals."},
+                  "text": "If we can't take your matter, we'll share free supportive referrals."},
                  {"icon": "lock", "title": "Confidential process",
                   "text": "Mediation‑related communication remains confidential."},
              ],
@@ -311,7 +311,7 @@ PAGES = [
              "eyebrow": "Our founder", "h2": "Founded by Tanika L. Smith",
              "paras": ["Transformative Life Solutions was founded by Tanika L. Smith, a seasoned alternative dispute "
                        "resolution (ADR) practitioner and communication strategist."],
-             "media_slot": FOUNDER_PHOTO_SLOT},
+             },
             {"type": "credgroups", "wf": "Pattern: tls/founder-credentials", "tone": "soft",
              "groups": FOUNDER_GROUPS},
             {"type": "cards", "wf": "Pattern: tls/pillars", "tone": "white", "center": True, "eyebrow": "Our approach",
@@ -356,7 +356,7 @@ PAGES = [
              "paras": ["Facilitation for relationship, roommate, neighbor, and community conflicts."],
              "bullets": ["Relationship conflicts", "Roommate and neighbor disagreements",
                          "Community and civic group conflicts"],
-             "image": "supportive-talk", "alt": "Two women talk openly on a sofa in a quiet, sunlit space"},
+             "image": "mediation-session", "alt": "A man and two women talk through a disagreement in a bright room"},
             {"type": "split", "id": "workplace", "wf": "Pattern: tls/service-detail", "tone": "white",
              "eyebrow": "Workplace & Organizational Facilitation", "h2": "Workplace and team communication",
              "paras": ["Communication support for teams, supervisors, and staff navigating conflict or change."],
@@ -370,7 +370,7 @@ PAGES = [
              "paras": ["One‑on‑one support to strengthen communication, decision‑making, boundary setting, and "
                        "conflict‑management skills."],
              "bullets": ["Communication", "Decision‑making", "Boundary setting", "Conflict‑management skills"],
-             "image": "mediation-session", "alt": "A facilitator listens during a relaxed session in a bright room"},
+             "image": "supportive-talk", "alt": "Two women talk openly on a sofa in a quiet, sunlit space"},
             dict(CROSSLINK, text="Need <strong>arbitration</strong>, <strong>med‑arb</strong>, or "
                                  "<strong>negotiation support</strong> for a business or nonprofit?"),
             {"type": "notlist", "wf": "Pattern: tls/scope-notice", "tone": "mist", "h2": "What we do not handle",
@@ -398,7 +398,7 @@ PAGES = [
              "link": ("begin-intake", "Start the screening")},
             {"type": "list", "wf": "Pattern: tls/referrals", "tone": "white",
              "h2": "If we can't help, we'll point you to support",
-             "intro": "If we are unable to facilitate your matter, we will explain why and provide free supportive "
+             "intro": "If we are unable to facilitate your matter, we will provide free supportive "
                       "referrals. Suggested referrals may include:",
              "items": REFERRALS, "draft": "Add verified website links for each referral."},
             {"type": "text", "wf": "Pattern: tls/text", "tone": "mist", "h2": "Before you begin",

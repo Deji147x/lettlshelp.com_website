@@ -3,7 +3,7 @@
 Sources: 'TLS2_Website Development Guide_ 09132026.pdf' (current) and the owner's brief.
 Copy that isn't in those sources carries a `draft` note so it gets owner/legal sign-off.
 """
-from common import (COMMERCE_SLOT, FOUNDER_GROUPS, FOUNDER_PHOTO_SLOT, GSC_TOKEN, PHONE,
+from common import (COMMERCE_SLOT, FOUNDER_GROUPS, GSC_TOKEN, PHONE,
                     REFERRALS, ROOT_POLICIES)
 from common import EMAIL_LEADERSHIP as C_EMAIL_LEADERSHIP
 from screening import (LEADERSHIP_INTRO, LEADERSHIP_QUESTIONS, ROLES, STOP_REFERRALS, STOP_TEXT, STOP_TITLE)
@@ -102,7 +102,7 @@ FAQ = [
      "draft": "Pending legal review. The guide and the brief cite different authorities; see Terms & Disclaimers."},
     {"q": "What happens if my matter isn't eligible?",
      "a": "We use written and verbal screening to determine eligibility and document every screening decision. If we "
-          "are unable to facilitate your matter, we will explain why and provide free supportive referrals."},
+          "are unable to facilitate your matter, we will provide free supportive referrals."},
     {"q": "Do you meet virtually or in person?",
      "a": "Both. We serve eligible B2B clients with virtual and in-person options."},
     {"q": "Do you handle family or personal conflicts?",
@@ -193,7 +193,7 @@ STEPS = [
      "text": "Written and verbal screening confirms your organization and matter are eligible. Every decision is "
              "documented."},
     {"title": "Confirm next steps",
-     "text": "If it's a fit, we agree on the right process. If not, we explain why and share free supportive "
+     "text": "If it's a fit, we agree on the right process. If not, we share free supportive "
              "referrals."},
     {"title": "Meet virtually or in person", "text": "Sessions for eligible B2B clients, in the setting that works."},
 ]
@@ -285,7 +285,7 @@ PAGES = [
                  {"icon": "clipboard", "title": "Documented screening",
                   "text": "Written and verbal screening, with every eligibility decision documented."},
                  {"icon": "check", "title": "Free referrals",
-                  "text": "If we can't assist, we explain why and provide free supportive referrals."},
+                  "text": "If we can't assist, we provide free supportive referrals."},
                  {"icon": "lock", "title": "Confidential process",
                   "text": "Mediation‑related communication remains confidential."},
              ],
@@ -318,7 +318,7 @@ PAGES = [
              "eyebrow": "Our founder", "h2": "Founded by Tanika L. Smith",
              "paras": ["Transformative Leadership Systems was founded by Tanika L. Smith, a seasoned alternative "
                        "dispute resolution (ADR) practitioner and organizational communication strategist."],
-             "media_slot": FOUNDER_PHOTO_SLOT},
+             },
             {"type": "credgroups", "wf": "Pattern: tls/founder-credentials", "tone": "soft",
              "groups": FOUNDER_GROUPS},
             {"type": "cards", "wf": "Pattern: tls/pillars", "tone": "white", "center": True, "eyebrow": "Our pillars",
@@ -402,7 +402,7 @@ PAGES = [
              "link": ("begin-intake", "Start the screening")},
             {"type": "list", "wf": "Pattern: tls/referrals", "tone": "white",
              "h2": "If we can't assist, we'll point you to support",
-             "intro": "If we are unable to facilitate your matter, we will explain why and provide free supportive "
+             "intro": "If we are unable to facilitate your matter, we will provide free supportive "
                       "referrals. Suggested referrals may include:",
              "items": REFERRALS, "draft": "Add verified website links for each referral."},
             {"type": "text", "wf": "Pattern: tls/text", "tone": "mist", "h2": "Before you begin",

@@ -22,7 +22,8 @@ STOP_TEXT = ("We follow strict ethics rules, so we cannot take matters that invo
 STOP_REFERRALS = ["Another private ADR practitioner", "Community Mediation Maryland", "Better Business Bureau"]
 
 ROLES = ["Select a role", "Contractor", "Contract worker", "Service provider", "Client", "Vendor", "Supplier",
-         "Co-worker", "Supervisor", "Supervisee", "Partner", "Board member", "Family member", "Other"]
+         "Co-worker", "Supervisor", "Supervisee", "Partner", "Board member", "Spouse", "Co-parent",
+         "Family member", "Neighbor", "Other"]
 
 # ---------- questions worded identically in both scripts ----------
 

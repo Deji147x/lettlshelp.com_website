@@ -29,7 +29,16 @@ from icons import ICONS  # noqa: E402
 OUT = ROOT / "wireframes"
 DESIGN = ROOT / "design-system"
 YEAR = 2026
-WIREFRAME = True  # adds the review banner, the notes toggle, and local sister-site links
+
+# Two builds from one source.
+#   python tools/build.py                → review build: preview banner, "Show wireframe
+#                                          notes" toggle, pattern labels, yellow Review flags.
+#   python tools/build.py --production   → the live site: none of that chrome.
+# The Review flags stay in content/*.py either way. They are the working record of what the
+# owner and her attorney still have to sign off, so they are hidden for launch, never deleted.
+PRODUCTION = "--production" in sys.argv
+WIREFRAME = not PRODUCTION  # review banner, notes toggle, and local sister-site links
+SHOW_REVIEW_FLAGS = not PRODUCTION
 # The hub is first: it owns the domain root, and the two practices sit in folders beneath it.
 MODULES = [hub, life, leadership]
 PRACTICES = [life, leadership]  # the two that have their own palette, images, and intake
@@ -133,7 +142,7 @@ def checklist(items):
 
 
 def draft_flag(text, small=False):
-    if not text:
+    if not text or not SHOW_REVIEW_FLAGS:
         return ""
     return f'<p class="draft-flag{" small" if small else ""}" role="note"><strong>Review:</strong> {text}</p>'
 
@@ -389,11 +398,15 @@ def r_hub_hero(ctx, s):
     ])
     if s.get("image"):
         media = f'<div class="hero-media">{img(ctx, s["image"], s["alt"], eager=True)}</div>'
-    else:
+    elif s.get("media_slot"):
         # No heading in the hero slot: it sits beside the h1, and an h3 there would break
         # the page's heading order.
         media = f'<div class="hero-media">{slot_html(s["media_slot"], heading_level=None)}</div>'
-    return (f'<section class="hero" data-wf="{attr(s.get("wf", ""))}"><div class="container hero-grid">'
+    else:
+        media = ""
+    # With no media the copy gets the full width instead of sitting in a half-empty grid.
+    grid = "container hero-grid" if media else "container hero-copy-only"
+    return (f'<section class="hero" data-wf="{attr(s.get("wf", ""))}"><div class="{grid}">'
             f'<div class="hero-copy">{copy}</div>{media}</div></section>')
 
 
@@ -811,6 +824,9 @@ def render_page(site, page):
                 target = re.escape(site_url(other.SITE))
                 local = ctx.root + other.SITE["slug"] + "/"
                 html = re.sub(rf'(<a\s[^>]*?href="){target}"', rf'\g<1>{local}"', html)
+    else:
+        # The pattern labels are notes to whoever builds the WordPress theme, not site content.
+        html = re.sub(r'\s+data-wf="[^"]*"', "", html)
     dest = OUT.joinpath(site["slug"], page["slug"], "index.html")
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(html, encoding="utf-8")

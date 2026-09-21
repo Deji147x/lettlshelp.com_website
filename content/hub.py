@@ -117,7 +117,7 @@ ROUTER_SLOT = {
 }
 
 CTA = {"type": "cta", "wf": "Pattern: tls/cta-band", "h2": "Call or text us",
-       "text": "Virtual and in‑person options during off‑peak hours. Serving eligible clients in Maryland.",
+       "text": "Virtual and in‑person options during off‑peak hours. Serving eligible clients in Maryland and beyond.",
        "primary": ("contact", "Contact Us")}
 
 PAGES = [
@@ -135,15 +135,11 @@ PAGES = [
                      "alternative dispute resolution services. Read how each one works, then complete a short "
                      "screening for the practice that fits your matter.",
              "primary": ("#practices", "Learn more about how we help"),
-             "media_slot": {
-                 "label": "Owner to supply",
-                 "title": "Hero image",
-                 "text": "A warm, human, brand-neutral photograph — not from either practice's existing set, so "
-                         "neither one looks like the parent. Needed at 800 and 1600 px wide.",
-             }},
+             # The hero runs as type only. The owner removed the "supply a hero image"
+             # placeholder (markup, 2026-09-20); add "image"/"alt" here to bring one back.
+             },
             {"type": "practices", "id": "practices", "wf": "Pattern: tls/practice-cards", "tone": "white",
              "h2": "Choose the practice that fits your matter",
-             "intro": "Each card links to that practice's own home, services, and screening.",
              "items": PRACTICES},
             {"type": "router", "wf": "Pattern: tls/screening-router", "tone": "soft",
              "h2": "Not sure which practice?",
@@ -157,7 +153,7 @@ PAGES = [
              "media_slot": {
                  "label": "If we cannot help",
                  "title": "Free supportive referrals",
-                 "text": "We explain why, and point you to seven named organizations. The full list is on the "
+                 "text": "We point you to seven trusted organizations. The full list is on the "
                          "Ethics & Compliance page.",
              }},
             CTA,
@@ -170,7 +166,7 @@ PAGES = [
                        "and provide free supportive referrals when a matter is not eligible.",
         "sections": [
             {"type": "page_hero", "eyebrow": "Ethics & Compliance", "h1": "Ethics, Compliance, and Screenings",
-             "lede": "One page for both practices, linked from every footer."},
+             },
             {"type": "text", "wf": "Pattern: tls/text", "tone": "white",
              "h2": "Our Commitment to Ethical Practice", "paras": [ETHICS_COMMITMENT]},
             {"type": "text", "wf": "Pattern: tls/text", "tone": "soft",
