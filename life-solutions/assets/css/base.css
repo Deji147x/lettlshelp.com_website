@@ -113,6 +113,10 @@ a:hover { color: var(--c-primary-hover); }
   #primary-nav a { padding: .8rem 1rem; font-size: 1.05rem; }
 }
 
+/* A hero with no image: the copy takes the full width rather than sitting in a half-empty
+   two-column grid. Capped so the lines stay a comfortable reading length. */
+.hero-copy-only .hero-copy { max-width: 46rem; }
+
 /* Sister-practice band.
    Sits under the header, not in it: the nav is already six items plus the consultation
    button, and the descriptor is too long to ride alongside them. The whole strip is one
