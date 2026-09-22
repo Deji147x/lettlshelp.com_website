@@ -3,15 +3,17 @@
 Source: the owner's vision document, 2026-09-16. The Home, Ethics & Compliance,
 Disclaimers and Contact copy is verbatim from it; nothing has been added.
 
-The hub is deliberately brand-neutral. It carries no email address of its own:
-it leads with the phone number and offers both practice addresses, so a visitor
-never has to guess which one to write to.
+Home-page and general enquiries go to LifeSolutions@LetTLSHelp.com, and the hub
+carries the Transformative Life Solutions logo (owner's instructions, 2026-09-22).
+The footer and the Contact page still offer both practice addresses, so anyone who
+already knows which practice they need can write to it directly.
 """
 from common import (CONFIDENTIALITY_ACT, CONFIDENTIALITY_REVIEW, EMAIL_LEADERSHIP, EMAIL_LIFE,
                     ETHICS_COMMITMENT, ETHICS_COMPLIANCE_SAFE, ETHICS_REFERRAL_INTRO,
                     ETHICS_SCOPE_LEADERSHIP, ETHICS_SCOPE_LIFE, ETHICS_SCREENING, GSC_TOKEN,
                     LEGAL_REVIEW, NOT_PROVIDED, NOT_PROVIDED_INTRO, PRIVACY_OUTLINE,
                     PROFESSIONAL_STANDARDS, REFERRALS, ROOT_POLICIES)
+from screening import STOP_TEXT, STOP_TITLE
 
 LIFE_URL = "https://lettlshelp.com/life-solutions/"
 LEADERSHIP_URL = "https://lettlshelp.com/leadership-systems/"
@@ -36,7 +38,8 @@ SITE = {
     "gsc": GSC_TOKEN,
     "ga4_id": None,  # e.g. "G-XXXXXXXXXX"; a Measurement ID, not an API key
     "booking_url": None,
-    "email": None,  # no hub mailbox by design; both practice addresses are shown instead
+    # Home-page and general enquiries go to Life Solutions (owner's instruction, 2026-09-22).
+    "email": EMAIL_LIFE,
     "footer_blurb": "Two sister practices offering private, alternative dispute resolution services that help "
                     "transform lives: family-centered mediation and conflict coaching, and business-to-business "
                     "conflict resolution.",
@@ -96,26 +99,34 @@ PRACTICES = [
     },
 ]
 
-ROUTER_STEPS = [
-    {"title": "Who is involved?",
-     "text": "Individuals and families, or an organization and its leaders."},
-    {"title": "Is it a consumer matter?",
-     "text": "If it is, we cannot assist — you get free supportive referrals instead."},
-    {"title": "What kind of support?",
-     "text": "Mediation, arbitration, facilitation, or conflict coaching."},
-]
-
-ROUTER_SLOT = {
-    "label": "Integration slot · Screening router",
-    "title": "Three questions, then the right form",
-    "text": "Reserved for the shared screening router. It is provider-agnostic: embed it with a block, "
-            "shortcode, or iframe, and it hands off to whichever practice's intake fits.",
-    "bullets": [
-        "Reuses the eligibility logic already written in content/screening.py",
-        "Secure (HTTPS) submission that collects only what routing needs",
-        "Sends ineligible matters to the free referrals rather than to a form",
-        "No confidential detail is requested before eligibility is confirmed",
+# The home page's three questions, as a working form (owner's markup, 2026-09-20: "Can those
+# three questions become the screening for that box?"). Answers go to LifeSolutions@ — the
+# owner's instruction for home-page and general enquiries, 2026-09-22. It uses the same form
+# machinery as the two practice intakes, so a "Yes" to the consumer question shows the same
+# "we cannot assist" notice, here with the full linked referral list.
+GENERAL_SCREENING = {
+    "type": "intake", "wf": "Pattern: tls/screening-form (3 questions, general)", "tone": "soft",
+    "h2": "Not sure which practice?",
+    "intro": ["Answer three quick questions and we will point you to the right practice. Nothing "
+              "confidential is asked before eligibility is confirmed."],
+    "questions": [
+        {"q": "Who is involved?",
+         "options": [{"label": "Individuals or family members"},
+                     {"label": "An organization, its leaders, or its partners"},
+                     {"label": "Not sure"}]},
+        {"q": "Is this a consumer matter?",
+         "help": "For example, a dispute with a business about something you bought, a bill, a warranty, "
+                 "or a service agreement.",
+         "options": [{"label": "No"},
+                     {"label": "Yes", "stop": True},
+                     {"label": "Not sure", "note": "That's fine. We will confirm during screening."}]},
+        {"q": "What kind of support are you looking for?",
+         "options": [{"label": "Mediation"}, {"label": "Arbitration or med-arb"},
+                     {"label": "Facilitation"}, {"label": "Conflict coaching"},
+                     {"label": "Not sure yet"}]},
     ],
+    "roles": [], "stop_title": STOP_TITLE, "stop_text": STOP_TEXT, "stop_referrals": REFERRALS,
+    "draft": "Question wording drafted from the owner's three home-page steps. Owner to confirm.",
 }
 
 CTA = {"type": "cta", "wf": "Pattern: tls/cta-band", "h2": "Call or text us",
@@ -143,11 +154,7 @@ PAGES = [
             {"type": "practices", "id": "practices", "wf": "Pattern: tls/practice-cards", "tone": "white",
              "h2": "Choose the practice that fits your matter",
              "items": PRACTICES},
-            {"type": "router", "wf": "Pattern: tls/screening-router", "tone": "soft",
-             "h2": "Not sure which practice?",
-             "intro": "Answer three questions and we will send you to the right screening. Nothing confidential "
-                      "is asked before eligibility is confirmed.",
-             "items": ROUTER_STEPS, "slot": ROUTER_SLOT},
+            GENERAL_SCREENING,
             {"type": "split", "wf": "Pattern: tls/scope-notice", "tone": "white",
              "h2": "Our commitment to ethical practice",
              "paras": [ETHICS_COMMITMENT, ETHICS_COMPLIANCE_SAFE],
@@ -230,10 +237,7 @@ PAGES = [
              "h2": "Email the right practice",
              "intro": "Both addresses reach the same founder. Choosing the right one gets you a faster answer.",
              "items": PRACTICES},
-            {"type": "router", "wf": "Pattern: tls/screening-router", "tone": "soft",
-             "h2": "Not sure which practice?",
-             "intro": "Answer three questions and we will send you to the right screening.",
-             "items": ROUTER_STEPS, "slot": ROUTER_SLOT},
+            GENERAL_SCREENING,
         ],
     },
     {

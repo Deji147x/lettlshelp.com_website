@@ -460,7 +460,7 @@ def r_contact(ctx, s):
 <div class="field"><label for="f-msg">Brief description</label><textarea id="f-msg" name="message" aria-describedby="form-privacy"></textarea></div>
 <label class="check"><input type="checkbox" name="ack" required> <span>I understand this form is not for emergencies and that {site["name"]} does not provide legal advice or counseling.</span></label>
 <button class="btn btn-primary" type="submit">Send message</button>
-<p class="field-hint">Goes to <a href="mailto:{attr(site["email"])}">{site["email"]}</a>. In this wireframe, Send opens your email app with the message filled in; in WordPress the form posts securely and emails the same address.</p>
+<p class="field-hint">Send opens your email app with your message ready to go to <a href="mailto:{attr(site["email"])}">{site["email"]}</a>. <strong>Press Send in your email app to finish</strong> — until then, nothing has been sent. Prefer to talk? Call or text <a href="tel:{C.PHONE_TEL}">{C.PHONE}</a>.</p>
 <p class="form-error" role="alert" hidden></p>
 </form>'''
     note = draft_flag("Suggested safety line for a trauma-informed site; owner to approve: "
@@ -526,9 +526,10 @@ def r_intake(ctx, s):
     # heading(), which expects a single string and would print the list itself.
     head, hid = heading(ctx, dict(s, intro=None))
     questions = "".join(intake_question(q, i, s["roles"]) for i, q in enumerate(s["questions"], start=1))
-    referrals = "".join(f"<li>{r}</li>" for r in s["stop_referrals"])
+    referrals = "".join(list_item(ctx, r) for r in s["stop_referrals"])
+    linked = any(not isinstance(r, str) for r in s["stop_referrals"])
     stop = (f'<div class="stop-banner" role="status" hidden><h3>{s["stop_title"]}</h3><p>{s["stop_text"]}</p>'
-            f'<ul class="softlist">{referrals}</ul></div>')
+            f'<ul class="{"referrals" if linked else "softlist"}">{referrals}</ul></div>')
     your_details = f'''<fieldset class="party"><legend>Your details</legend>
 <div class="party-grid">
 <div class="field"><label for="you-name">Full name</label><input id="you-name" name="your_name" autocomplete="name" required></div>
@@ -543,7 +544,7 @@ def r_intake(ctx, s):
 <div class="intake-actions">
 <label class="check"><input type="checkbox" name="ack" required> <span>My answers are accurate to the best of my knowledge, and I understand that {site["name"]} screens every matter before offering services.</span></label>
 <button class="btn btn-primary" type="submit">Submit screening</button>
-<p class="field-hint">Responses go to <a href="mailto:{attr(site["email"])}">{site["email"]}</a>. In this wireframe, Submit opens your email app with the answers filled in; in WordPress the form posts securely and emails the same address.</p>
+<p class="field-hint">Submit opens your email app with your answers ready to go to <a href="mailto:{attr(site["email"])}">{site["email"]}</a>. <strong>Press Send in your email app to finish</strong> — until then, nothing has been sent. Prefer to talk? Call or text <a href="tel:{C.PHONE_TEL}">{C.PHONE}</a>.</p>
 <p class="form-error" role="alert" hidden></p>
 </div>
 </form>'''
@@ -613,8 +614,8 @@ def schema(ctx):
            "sameAs": [url for _, url in C.SOCIAL]}
     if site.get("email"):
         org["email"] = contact_point["email"] = site["email"]
-    else:
-        # The hub has no mailbox, and it is the parent of both practices rather than a peer.
+    if not site.get("sister"):
+        # The hub is the parent of both practices rather than a peer.
         org["subOrganization"] = [{"@type": "ProfessionalService", "name": p["name"], "url": p["href"],
                                    "email": p["email"]} for p in hub.PRACTICES]
     graph = [
@@ -792,11 +793,12 @@ def footer(ctx):
         logo_w, logo_h = ctx.manifest["_logo"]
         brand = (f'<img class="footer-logo" src="{ctx.a}logo.png" width="{logo_w}" height="{logo_h}" '
                  f'alt="{attr(site["name"])}">')
-    if site.get("email"):
+    if site.get("sister"):
         email_row = (f'<li><a href="mailto:{site["email"]}" {cta("email-footer", ctx)}>{site["email"]}</a></li>'
                      f'<li class="footer-muted">Virtual &amp; in‑person options</li>')
     else:
-        # The hub offers both practice addresses rather than inventing a third mailbox.
+        # The hub's footer offers both practice addresses, so anyone who already knows which
+        # practice they need can write to it directly.
         email_row = "".join(
             f'<li><a href="mailto:{p["email"]}" {cta("email-footer-" + p["key"], ctx)}>{p["email"]}</a></li>'
             for p in hub.PRACTICES) + '<li class="footer-muted">Virtual &amp; in‑person options</li>'
