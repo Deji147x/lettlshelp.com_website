@@ -1,0 +1,164 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "appearanceTools": true,
+    "layout": {
+      "contentSize": "46rem",
+      "wideSize": "1160px"
+    },
+    "useRootPaddingAwareAlignments": true,
+    "color": {
+      "custom": true,
+      "customGradient": false,
+      "defaultPalette": false,
+      "defaultGradients": false,
+      "link": true
+    },
+    "spacing": {
+      "padding": true,
+      "margin": true,
+      "units": [
+        "px",
+        "rem",
+        "%",
+        "vw"
+      ],
+      "spacingSizes": [
+        {
+          "slug": "30",
+          "size": "1rem",
+          "name": "Small"
+        },
+        {
+          "slug": "40",
+          "size": "1.75rem",
+          "name": "Medium"
+        },
+        {
+          "slug": "50",
+          "size": "3rem",
+          "name": "Large"
+        },
+        {
+          "slug": "60",
+          "size": "4.5rem",
+          "name": "Section"
+        }
+      ]
+    },
+    "typography": {
+      "fluid": true,
+      "customFontSize": true,
+      "fontSizes": [
+        {
+          "slug": "small",
+          "size": "0.9rem",
+          "name": "Small"
+        },
+        {
+          "slug": "medium",
+          "size": "1.0625rem",
+          "name": "Body"
+        },
+        {
+          "slug": "large",
+          "size": "1.35rem",
+          "name": "Large"
+        },
+        {
+          "slug": "x-large",
+          "size": "clamp(1.9rem, 1.4rem + 2vw, 2.6rem)",
+          "name": "Heading"
+        },
+        {
+          "slug": "xx-large",
+          "size": "clamp(2.4rem, 1.6rem + 3.2vw, 3.4rem)",
+          "name": "Display"
+        }
+      ]
+    },
+    "blocks": {
+      "core/button": {
+        "border": {
+          "radius": true
+        }
+      }
+    }
+  },
+  "styles": {
+    "spacing": {
+      "blockGap": "1.25rem",
+      "padding": {
+        "left": "1.25rem",
+        "right": "1.25rem"
+      }
+    },
+    "typography": {
+      "fontFamily": "var(--f-body)",
+      "lineHeight": "1.65",
+      "fontSize": "var(--wp--preset--font-size--medium)"
+    },
+    "color": {
+      "text": "var(--c-text)",
+      "background": "#FFFFFF"
+    },
+    "elements": {
+      "link": {
+        "color": {
+          "text": "var(--c-primary)"
+        },
+        ":hover": {
+          "color": {
+            "text": "var(--c-primary-hover)"
+          }
+        }
+      },
+      "heading": {
+        "typography": {
+          "fontFamily": "var(--f-head)",
+          "lineHeight": "1.2",
+          "fontWeight": "600"
+        },
+        "color": {
+          "text": "var(--c-deep)"
+        }
+      },
+      "button": {
+        "border": {
+          "radius": "999px"
+        },
+        "color": {
+          "background": "var(--c-primary)",
+          "text": "#FFFFFF"
+        },
+        ":hover": {
+          "color": {
+            "background": "var(--c-primary-hover)"
+          }
+        }
+      }
+    }
+  },
+  "templateParts": [
+    {
+      "name": "header",
+      "title": "Header",
+      "area": "header"
+    },
+    {
+      "name": "footer",
+      "title": "Footer",
+      "area": "footer"
+    }
+  ],
+  "customTemplates": [
+    {
+      "name": "page-wide",
+      "title": "Page (full width)",
+      "postTypes": [
+        "page"
+      ]
+    }
+  ]
+}

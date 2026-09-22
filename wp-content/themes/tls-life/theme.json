@@ -1,0 +1,85 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "color": {
+      "palette": [
+        {
+          "slug": "dark-teal-blue",
+          "name": "Dark Teal Blue",
+          "color": "#006B7B"
+        },
+        {
+          "slug": "deep-navy-teal",
+          "name": "Deep Navy Teal",
+          "color": "#003853"
+        },
+        {
+          "slug": "soft-grey-blue",
+          "name": "Soft Grey Blue",
+          "color": "#8BABB1"
+        },
+        {
+          "slug": "warm-teal-grey",
+          "name": "Warm Teal Grey",
+          "color": "#A0B7B9"
+        },
+        {
+          "slug": "silver-grey",
+          "name": "Silver Grey",
+          "color": "#C1C7CE"
+        },
+        {
+          "slug": "warm-gold",
+          "name": "Warm Gold",
+          "color": "#D4AF37"
+        },
+        {
+          "slug": "soft-teal-tint",
+          "name": "Soft Teal Tint",
+          "color": "#E8F0F1"
+        },
+        {
+          "slug": "mist",
+          "name": "Mist",
+          "color": "#F4F7F8"
+        },
+        {
+          "slug": "line",
+          "name": "Line",
+          "color": "#D5E0E2"
+        },
+        {
+          "slug": "ink",
+          "name": "Ink",
+          "color": "#1C2B33"
+        },
+        {
+          "slug": "muted-ink",
+          "name": "Muted Ink",
+          "color": "#46585F"
+        }
+      ],
+      "defaultPalette": false
+    },
+    "typography": {
+      "fontFamilies": [
+        {
+          "fontFamily": "\"Lora\", Georgia, serif",
+          "slug": "heading",
+          "name": "Lora"
+        },
+        {
+          "fontFamily": "\"Open Sans\", system-ui, sans-serif",
+          "slug": "body",
+          "name": "Open Sans"
+        },
+        {
+          "fontFamily": "\"Playfair Display\", Georgia, serif",
+          "slug": "accent",
+          "name": "Playfair Display"
+        }
+      ]
+    }
+  }
+}
