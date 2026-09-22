@@ -96,6 +96,10 @@
 
   var key = 'tls-wireframe-notes';
   var button = document.querySelector('.wf-toggle');
+  // The toggle only exists in the review build. On the live site there is nothing to
+  // remember, so don't touch browser storage at all: it keeps the Privacy Policy's
+  // "this site stores nothing on your device" claim true.
+  if (!button) return;
   function setNotes(on) {
     document.body.classList.toggle('show-notes', on);
     if (button) {

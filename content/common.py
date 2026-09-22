@@ -17,8 +17,9 @@ SOCIAL = [("Facebook", FACEBOOK), ("LinkedIn", LINKEDIN)]
 # delivery ignores it, but it reads better in the header and footer.
 EMAIL_LIFE = "LifeSolutions@LetTLSHelp.com"
 EMAIL_LEADERSHIP = "LeadershipSystems@LetTLSHelp.com"
-# The shared hub pages deliberately carry NO address of their own: they lead with the phone
-# number and offer both practice addresses, so nobody has to guess which one to write to.
+# Home-page and general enquiries go to EMAIL_LIFE (owner's instruction, 2026-09-22). The hub's
+# footer and Contact page still show both, so anyone who knows which practice they need can
+# write to it directly.
 
 # Policy and compliance pages live once, at the domain root, and serve both practices.
 # Every footer links to them through Ctx.root_href(), so the path is correct from any depth.
@@ -26,6 +27,7 @@ ROOT_POLICIES = [
     ("ethics", "Ethics & Compliance"),
     ("disclaimers", "Disclaimers"),
     ("privacy-policy", "Privacy Policy"),
+    ("terms", "Terms of Use"),
 ]
 
 PHONE = "(240) 650-0007"
@@ -165,6 +167,159 @@ CONFIDENTIALITY_REVIEW = (
     "“Maryland Mediation and Confidentiality Act”; the earlier brief cites Maryland Rule 17 for the "
     "same point. See docs/consistency-review.md."
 )
+
+# ---------------------------------------------------------------------------
+# Privacy Policy and Terms of Use.
+#
+# Drafted 2026-09-22 from what this website actually does, not from a template:
+# the forms hand off to the visitor's own email app (mailto:), typefaces come
+# from Google Fonts, the host keeps ordinary server logs, no analytics is
+# switched on, and no cookies or browser storage are used on the live build.
+#
+# ATTORNEY REVIEW IS STILL REQUIRED. Anything that is a legal judgement rather
+# than a description of the site carries a [square-bracket] marker, and the
+# pages show a review flag in the review build.
+#
+# KEEP THIS HONEST: if the site changes, change the policy in the same commit.
+# In particular, switching on GA4 (SITE["ga4_id"]) or Google Calendar booking
+# (SITE["booking_url"]) makes the analytics and scheduling sections below wrong.
+# ---------------------------------------------------------------------------
+POLICY_UPDATED = "22 September 2026"
+ATTORNEY_REVIEW = (
+    "Draft for attorney review. It describes how the website actually works; the items in "
+    "[square brackets] need the owner's or an attorney's decision before launch."
+)
+
+PRIVACY_POLICY = [
+    {"h": "Who this policy covers",
+     "p": ["This policy covers lettlshelp.com and both practices on it: Transformative Life Solutions "
+           "and Transformative Leadership Systems. Both are operated by Tanika L. Smith.",
+           "You can reach us by phone or text on (240) 650‑0007, or by email at "
+           "LifeSolutions@LetTLSHelp.com or LeadershipSystems@LetTLSHelp.com."]},
+    {"h": "The short version",
+     "p": ["This website does not run forms on its own server, set cookies, or store anything on your "
+           "device. It does not track you, and we do not sell or rent your information.",
+           "What we do hold is what you choose to send us by email, text, or phone, plus the ordinary "
+           "server records our web host keeps."]},
+    {"h": "When you use a form on this site",
+     "p": ["The contact and screening forms do not submit to us over the web. When you press Send or "
+           "Submit, the form opens your own email app with your answers already written into a message "
+           "addressed to us. <strong>Nothing is sent until you press send in your email app.</strong>",
+           "This means your answers travel as an ordinary email, through your email provider and ours. "
+           "Email is not encrypted end to end. If a matter is sensitive, call or text instead.",
+           "So that a long message is not lost if your email app shortens it, the form also copies your "
+           "answers to your device's clipboard. They stay there until you copy something else. We never "
+           "see your clipboard.",
+           "Because the message is created inside your own email app, this website never receives or "
+           "stores what you typed."]},
+    {"h": "What we ask for, and what not to send",
+     "p": ["The forms ask for your name, email address, phone number, how you prefer to be contacted, "
+           "and short answers about the kind of matter you have, so we can tell whether we are allowed "
+           "to help.",
+           "Please do not send confidential details about your dispute before we confirm eligibility. "
+           "The forms say so at the point where it matters."]},
+    {"h": "Information collected automatically",
+     "p": ["Our web host keeps standard server logs: the IP address you connect from, your browser and "
+           "device type, which pages you requested, and when. These are used to keep the site running "
+           "and secure, and we do not use them to build a profile of you.",
+           "[Owner to confirm the host and how long it keeps logs.]"]},
+    {"h": "Typefaces served by Google",
+     "p": ["The site's typefaces load from Google Fonts. To deliver them, Google receives your IP "
+           "address and basic browser information. Google does not set cookies for this, and we send "
+           "Google nothing else about you.",
+           "[Recommended: self-host the typefaces when the site moves to WordPress. The fonts then come "
+           "from our own server and this section can be removed.]"]},
+    {"h": "Cookies, analytics, and tracking",
+     "p": ["This site sets no cookies, uses no browser storage, and has no analytics, advertising, or "
+           "social media tracking installed. That is why you are not asked to accept cookies.",
+           "If we add analytics later, we will update this policy and say plainly what is collected "
+           "before it goes live."]},
+    {"h": "Booking appointments",
+     "p": ["Online booking is not switched on yet. When it is, appointments will be scheduled through "
+           "Google Calendar, and the name, email address, and time you enter will be processed by "
+           "Google in order to make and confirm the booking."]},
+    {"h": "Screening records",
+     "p": ["We keep a record of screening decisions, including matters we cannot accept and the reason, "
+           "because our ethics obligations require us to document them.",
+           "[Owner and attorney to confirm how long screening records are kept and how they are stored.]"]},
+    {"h": "Who else sees your information",
+     "p": ["Your email reaches our email provider, and our website is served by our web host. We do not "
+           "share your information with anyone else except where the law requires it.",
+           "We do not sell, rent, or trade personal information, and we never have."]},
+    {"h": "Your choices",
+     "p": ["You can ask us what information we hold about you, ask us to correct it, or ask us to delete "
+           "it. Email or call us and we will respond.",
+           "We may need to keep screening records even after a request to delete, where our ethics "
+           "obligations require it. [Attorney to confirm which privacy laws apply to this practice and "
+           "what rights they give.]"]},
+    {"h": "Children",
+     "p": ["This website is meant for adults and is not directed to children under 13. We do not "
+           "knowingly collect information from children."]},
+    {"h": "Changes to this policy",
+     "p": ["If we change how the site handles information, we will update this page and change the date "
+           "at the top. Significant changes will be described here rather than made quietly."]},
+]
+
+TERMS_OF_USE = [
+    {"h": "About these terms",
+     "p": ["These terms apply to lettlshelp.com and to both practices on it. By using the site, you "
+           "agree to them. If you do not agree, please do not use the site."]},
+    {"h": "What this website is",
+     "p": ["The site describes our alternative dispute resolution services and helps you find out "
+           "whether we can help. It is general information only.",
+           "Nothing here is legal advice, and nothing here is medical or mental health advice. Do not "
+           "act or delay acting on something you read here without getting proper advice for your "
+           "own situation."]},
+    {"h": "Using the site does not make you a client",
+     "p": ["Reading these pages, sending a form, or emailing or calling us does not by itself create a "
+           "client relationship. A relationship begins only when we have screened your matter, both "
+           "sides have agreed to work together, and any agreement we ask for is in place."]},
+    {"h": "Eligibility and screening",
+     "p": ["Every matter is screened before we accept it, in writing and by conversation. We cannot "
+           "accept matters that fall outside what our ethics rules allow, including consumer matters "
+           "and matters involving consumer‑facing businesses.",
+           "If we cannot help, we will provide free supportive referrals. Those referrals are "
+           "suggestions, not a recommendation of any particular organization or an endorsement of the "
+           "advice they may give."]},
+    {"h": "What we do not provide",
+     "p": ["We provide neutral ADR, conflict‑coaching, and organizational facilitation services only. "
+           "We do not provide legal advice, legal representation, or legal advocacy, and we do not "
+           "provide medical or mental health counseling or clinical therapeutic services.",
+           "You may wish to have your own attorney review any agreement reached in mediation."]},
+    {"h": "Confidentiality",
+     "p": ["Mediation‑related communication is treated as confidential. The Disclaimers page sets out "
+           "the standards we work to."]},
+    {"h": "Messages you send us",
+     "p": ["Messages sent from this site go through your own email app, so they travel as ordinary "
+           "email and are not encrypted end to end. Please do not send confidential details about a "
+           "dispute before we confirm we can help. If a matter is sensitive, call or text us.",
+           "We cannot guarantee that an email reaches us, so if you do not hear back, please phone."]},
+    {"h": "Fees, scheduling, and cancellations",
+     "p": ["[Owner to supply: fees and how they are charged, whether a consultation is free, how fees "
+           "are split between parties, deposits, payment methods, and the cancellation and "
+           "rescheduling policy. This section must be completed before any online payment or booking "
+           "is switched on.]"]},
+    {"h": "Our content",
+     "p": ["The text, logos, and design of this site belong to us and may not be copied or reused "
+           "commercially without permission. You are welcome to print or share pages for your own "
+           "personal use."]},
+    {"h": "Links to other sites",
+     "p": ["Where we link to another organization, such as a referral, we do so for convenience. We do "
+           "not control those sites and are not responsible for their content, accuracy, or privacy "
+           "practices."]},
+    {"h": "Availability",
+     "p": ["We try to keep the site accurate and available, but we cannot promise it will always be up "
+           "to date or free of interruptions or errors."]},
+    {"h": "Limitation of liability",
+     "p": ["[Attorney to draft. This clause should state the limits of our liability for use of the "
+           "website, consistent with Maryland law and with the practice's insurance.]"]},
+    {"h": "Governing law",
+     "p": ["[Attorney to confirm. The intention is that these terms are governed by the laws of the "
+           "State of Maryland, and that disputes are handled in Maryland.]"]},
+    {"h": "Changes and contact",
+     "p": ["We may update these terms. The date at the top of the page shows when they last changed. "
+           "Questions about these terms can go to either practice address or to our phone number."]},
+]
 
 INTAKE_SLOT = {
     "label": "Integration slot · Screening tool",

@@ -11,8 +11,9 @@ already knows which practice they need can write to it directly.
 from common import (CONFIDENTIALITY_ACT, CONFIDENTIALITY_REVIEW, EMAIL_LEADERSHIP, EMAIL_LIFE,
                     ETHICS_COMMITMENT, ETHICS_COMPLIANCE_SAFE, ETHICS_REFERRAL_INTRO,
                     ETHICS_SCOPE_LEADERSHIP, ETHICS_SCOPE_LIFE, ETHICS_SCREENING, GSC_TOKEN,
-                    LEGAL_REVIEW, NOT_PROVIDED, NOT_PROVIDED_INTRO, PRIVACY_OUTLINE,
-                    PROFESSIONAL_STANDARDS, REFERRALS, ROOT_POLICIES)
+                    ATTORNEY_REVIEW, NOT_PROVIDED, NOT_PROVIDED_INTRO, POLICY_UPDATED,
+                    PRIVACY_POLICY, PROFESSIONAL_STANDARDS, REFERRALS, ROOT_POLICIES,
+                    TERMS_OF_USE)
 from screening import STOP_TEXT, STOP_TITLE
 
 LIFE_URL = "https://lettlshelp.com/life-solutions/"
@@ -208,20 +209,10 @@ PAGES = [
              "paras": [CONFIDENTIALITY_ACT], "draft": CONFIDENTIALITY_REVIEW},
             {"type": "text", "wf": "Pattern: tls/text", "tone": "white", "h2": "Professional Standards",
              "paras": [PROFESSIONAL_STANDARDS]},
-            {"type": "legal", "wf": "Pattern: tls/legal-outline", "tone": "soft", "h2": "Terms of use",
-             "draft": LEGAL_REVIEW,
-             "outline": [
-                 ("Use of this website", "General information only; not legal, medical, or mental health advice."),
-                 ("No professional relationship", "Contacting either practice or using this website does not by "
-                                                  "itself create a client relationship."),
-                 ("Eligibility & screening", "Services are subject to written and verbal screening; some matters "
-                                             "cannot be accepted."),
-                 ("Scheduling, fees & cancellations", "To be added when booking and payments launch."),
-                 ("Intellectual property", "Website content, logos, and materials."),
-                 ("Third-party links", "Referrals and external resources are provided for convenience."),
-                 ("Limitation of liability", "Attorney to draft."),
-                 ("Governing law", "Attorney to confirm."),
-             ]},
+            {"type": "text", "wf": "Pattern: tls/text", "tone": "soft", "h2": "Terms of use",
+             "paras": ["The terms that apply to using this website, including eligibility, fees, and "
+                       "liability, are set out separately."],
+             "link": ("/terms", "Read the Terms of Use")},
         ],
     },
     {
@@ -248,8 +239,20 @@ PAGES = [
         "sections": [
             {"type": "page_hero", "eyebrow": "Policies", "h1": "Privacy policy",
              "lede": "How we collect, use, and protect your information, across both practices."},
-            {"type": "legal", "wf": "Pattern: tls/legal-outline", "tone": "white", "h2": "Policy outline",
-             "draft": LEGAL_REVIEW, "outline": PRIVACY_OUTLINE},
+            {"type": "policy", "wf": "Pattern: tls/policy", "tone": "white",
+             "sections": PRIVACY_POLICY, "updated": POLICY_UPDATED, "draft": ATTORNEY_REVIEW},
+        ],
+    },
+    {
+        "slug": "terms", "label": "Terms of Use",
+        "title": "Terms of Use | LetTLSHelp ADR Practices",
+        "description": "The terms that apply to using lettlshelp.com: what the site is, eligibility and "
+                       "screening, what we do not provide, fees, and liability.",
+        "sections": [
+            {"type": "page_hero", "eyebrow": "Policies", "h1": "Terms of use",
+             "lede": "These terms cover this website and both practices on it."},
+            {"type": "policy", "wf": "Pattern: tls/policy", "tone": "white",
+             "sections": TERMS_OF_USE, "updated": POLICY_UPDATED, "draft": ATTORNEY_REVIEW},
         ],
     },
 ]

@@ -327,6 +327,29 @@ def r_disclaimers(ctx, s):
                       f'<h3>{s.get("options_h", "Options")}</h3>{options}</div>', hid=hid)
 
 
+def r_policy(ctx, s):
+    """A real policy document: "Last updated", then one h2 per section.
+
+    Unlike r_legal (which renders an outline of headings still to be written), this renders
+    finished prose. Items in [square brackets] are decisions the owner or an attorney still
+    has to make, so they are marked up rather than left to blend into the text.
+    """
+    blocks = []
+    for part in s["sections"]:
+        hid = ctx.unique_id(part["h"])
+        paragraphs = "".join(f"<p>{mark_open_items(p)}</p>" for p in part.get("p", []))
+        bullets = (f'<ul class="softlist">{"".join(f"<li>{mark_open_items(b)}</li>" for b in part["ul"])}</ul>'
+                   if part.get("ul") else "")
+        blocks.append(f'<h2 id="{hid}">{part["h"]}</h2>{paragraphs}{bullets}')
+    updated = f'<p class="policy-updated">Last updated: {s["updated"]}</p>'
+    return section(s, f'<div class="prose policy">{updated}{"".join(blocks)}</div>')
+
+
+def mark_open_items(text):
+    """Wrap [bracketed] decisions so they read as notes, not as part of the policy."""
+    return re.sub(r"\[([^\]]+)\]", r'<span class="open-item">[\1]</span>', text)
+
+
 def r_legal(ctx, s):
     head, hid = heading(ctx, s)
     blocks = "".join(f'<h3>{title}</h3><p class="placeholder-text">{note}</p>' for title, note in s["outline"])
@@ -583,7 +606,7 @@ RENDER = {
     "contact": r_contact, "intake": r_intake, "booking": r_booking,
     # Hub and About additions, 2026-09-16.
     "hub_hero": r_hub_hero, "practices": r_practices, "router": r_router, "hub_contact": r_hub_contact,
-    "notprovided": r_notprovided, "credgroups": r_credgroups,
+    "notprovided": r_notprovided, "credgroups": r_credgroups, "policy": r_policy,
 }
 
 
