@@ -861,11 +861,14 @@ def site_files(site, pages):
     shutil.copy2(DESIGN / "base.css", root / "assets" / "css" / "base.css")
     shutil.copy2(DESIGN / site["css"], root / "assets" / "css" / site["css"])
     shutil.copy2(DESIGN / "app.js", root / "assets" / "js" / "app.js")
-    if site.get("wordmark"):
-        # Review: the hub borrows Life Solutions' icons and OG image until the owner supplies a
-        # LetTLSHelp mark of its own. tools/process_assets.py generates the per-practice set.
-        for name in HUB_ICONS:
-            source = OUT / "life-solutions" / "assets" / name
+    if site.get("brand_from"):
+        # The hub has no brand files of its own: it carries the Transformative Life Solutions
+        # logo, icons and OG image (owner's instruction, 2026-09-22). The image manifest comes
+        # too, because the footer reads the logo's dimensions from it.
+        source_assets = OUT / site["brand_from"] / "assets"
+        (root / "assets" / "img").mkdir(parents=True, exist_ok=True)
+        for name in HUB_ICONS + ["logo.png", "logo-mark.png", "img/manifest.json"]:
+            source = source_assets / name
             if source.exists():
                 shutil.copy2(source, root / "assets" / name)
     manifest = {"name": site["name"], "short_name": site["word_bottom"],

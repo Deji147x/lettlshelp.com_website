@@ -20,8 +20,11 @@ SITE = {
     "key": "hub",
     "slug": "",  # renders straight into wireframes/
     "name": "LetTLSHelp",
-    "word_top": "LetTLSHelp",
-    "word_bottom": "Transformative Life Solutions & Leadership Systems",
+    # Owner's instruction (2026-09-22): the home page carries the Transformative Life Solutions
+    # logo and lockup. tools/build.py copies the mark and full logo from that practice's assets.
+    "word_top": "Transformative",
+    "word_bottom": "Life Solutions",
+    "brand_from": "life-solutions",
     "domain": "https://lettlshelp.com",
     "base": "",
     "root_depth": 0,  # the hub IS the root
@@ -34,7 +37,6 @@ SITE = {
     "ga4_id": None,  # e.g. "G-XXXXXXXXXX"; a Measurement ID, not an API key
     "booking_url": None,
     "email": None,  # no hub mailbox by design; both practice addresses are shown instead
-    "wordmark": True,  # no hub logo file exists yet, so the brand renders as type
     "footer_blurb": "Two sister practices offering private, alternative dispute resolution services that help "
                     "transform lives: family-centered mediation and conflict coaching, and business-to-business "
                     "conflict resolution.",
