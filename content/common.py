@@ -5,7 +5,12 @@ website guides. Don't add claims, credentials, or statistics the owner hasn't su
 """
 
 FOUNDER = "Tanika L. Smith"
-LINKEDIN = "https://www.linkedin.com/in/lettlshelp/"
+
+# Social profiles, as revised by the owner 2026-09-22. Both are the PRACTICE's pages, not a
+# personal profile, so the schema lists them under the organization rather than the founder.
+FACEBOOK = "https://www.facebook.com/LetTLSHelp/"
+LINKEDIN = "https://www.linkedin.com/company/lettlshelp"
+SOCIAL = [("Facebook", FACEBOOK), ("LinkedIn", LINKEDIN)]
 
 # Owner's instruction (vision document, 2026-09-16): one address per practice, both on
 # lettlshelp.com. These replace services@ and support@. The casing is the owner's; mail
@@ -47,14 +52,31 @@ ETHICS_DISCLAIMER = (
     "Public Ethics Law §5‑502."
 )
 
+# Free supportive referrals: name, what it helps with, and where to go. Descriptions and URLs
+# supplied by the owner, 2026-09-22.
 REFERRALS = [
-    "Maryland's Consumer Protection Division",
-    "Maryland Courts Self‑Help Center",
-    "People's Law Library",
-    "Community Mediation Maryland",
-    "MPME‑rostered ADR practitioners",
-    "Better Business Bureau",
-    "Crisis Text Line",
+    {"name": "Maryland's Consumer Protection Division",
+     "text": "Get help with a consumer, health billing, or insurance complaint.",
+     "url": "https://oag.maryland.gov"},
+    {"name": "Maryland Courts Self‑Help Center",
+     "text": "Learn how the court system can assist with your dispute through litigation, arbitration, "
+             "and mediation.",
+     "url": "https://www.mdcourts.gov/helpcenter"},
+    {"name": "People's Law Library",
+     "text": "Get free legal help and information for Maryland cases.",
+     "url": "https://www.peoples-law.org/"},
+    {"name": "Community Mediation Maryland",
+     "text": "Obtain mediation services through centers across Maryland.",
+     "url": "https://mdmediation.org/need-mediation/"},
+    {"name": "MPME‑rostered ADR practitioners",
+     "text": "Find a Maryland-based ADR practitioner who can assist.",
+     "url": "https://www.mdcourts.gov/mpme/find"},
+    {"name": "Better Business Bureau",
+     "text": "Get help resolving a problem with a business through mediation and arbitration programs.",
+     "url": "https://www.bbb.org"},
+    {"name": "Crisis Text Line",
+     "text": "Reach a crisis counselor by text, 24/7.",
+     "url": "https://www.crisistextline.org/"},
 ]
 
 # ---------------------------------------------------------------------------

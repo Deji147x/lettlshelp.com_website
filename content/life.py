@@ -400,7 +400,7 @@ PAGES = [
              "h2": "If we can't help, we'll point you to support",
              "intro": "If we are unable to facilitate your matter, we will provide free supportive "
                       "referrals. Suggested referrals may include:",
-             "items": REFERRALS, "draft": "Add verified website links for each referral."},
+             "items": REFERRALS},
             {"type": "text", "wf": "Pattern: tls/text", "tone": "mist", "h2": "Before you begin",
              "bullets": ["We provide mediation services only. We do not provide legal advice, legal representation, "
                          "or legal advocacy.",

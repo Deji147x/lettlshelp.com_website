@@ -275,10 +275,23 @@ def r_faq(ctx, s):
                       f'{more_link(ctx, s, center=center)}', hid=hid)
 
 
+def list_item(ctx, item):
+    """A plain string, or a referral: {"name", "text", "url"} rendered as a named link."""
+    if isinstance(item, str):
+        return f"<li>{item}</li>"
+    # noopener: the external site can't reach back into this tab. noreferrer: the referral
+    # doesn't tell a crisis line or a court which dispute-resolution page someone came from.
+    return (f'<li class="referral"><a href="{attr(item["url"])}" rel="noopener noreferrer" '
+            f'{cta("referral-" + slugify(item["name"]), ctx)}>{item["name"]}</a>'
+            f'<span class="referral-text">{item["text"]}</span></li>')
+
+
 def r_list(ctx, s):
     head, hid = heading(ctx, s)
-    items = "".join(f"<li>{i}</li>" for i in s["items"])
-    return section(s, f'{head}<ul class="columns">{items}</ul>{more_link(ctx, s)}', hid=hid)
+    referrals = any(not isinstance(i, str) for i in s["items"])
+    items = "".join(list_item(ctx, i) for i in s["items"])
+    cls = "referrals" if referrals else "columns"
+    return section(s, f'{head}<ul class="{cls}">{items}</ul>{more_link(ctx, s)}', hid=hid)
 
 
 def r_crosslink(ctx, s):
@@ -595,7 +608,9 @@ def schema(ctx):
            "logo": base + "assets/logo.png", "image": base + "assets/og-image.jpg",
            "description": site["footer_blurb"], "telephone": C.PHONE_SCHEMA,
            "founder": {"@id": base + "#founder"},
-           "knowsAbout": site["keywords"], "contactPoint": contact_point}
+           "knowsAbout": site["keywords"], "contactPoint": contact_point,
+           # The practice's own social profiles: this is what ties the site to them for search.
+           "sameAs": [url for _, url in C.SOCIAL]}
     if site.get("email"):
         org["email"] = contact_point["email"] = site["email"]
     else:
@@ -608,7 +623,7 @@ def schema(ctx):
          "publisher": {"@id": org_id}},
         webpage,
         {"@type": "Person", "@id": base + "#founder", "name": C.FOUNDER, "jobTitle": "Founder",
-         "worksFor": {"@id": org_id}, "sameAs": [C.LINKEDIN]},
+         "worksFor": {"@id": org_id}},
     ]
     if page["slug"] == "services":
         for s in page["sections"]:
@@ -792,13 +807,15 @@ def footer(ctx):
     else:
         rows = "".join(f'<li><a href="{ctx.href("/" + p["path"])}">{p["name"]}</a></li>' for p in hub.PRACTICES)
         sister = f'<h2 class="footer-h">Our practices</h2><ul>{rows}</ul>'
+    follow = "".join(f'<li><a href="{url}" rel="noopener" {cta("social-" + label.lower(), ctx)}>{label}</a></li>'
+                     for label, url in C.SOCIAL)
     toggle = '<button class="wf-toggle" type="button" aria-pressed="false">Show wireframe notes</button>' if WIREFRAME else ""
     return f'''<footer class="site-footer" data-wf="Template part: footer">
 <div class="container footer-grid">
 <div>{brand}<p>{site["footer_blurb"]}</p></div>
 <nav aria-label="Footer"><h2 class="footer-h">Explore</h2><ul>{nav}</ul></nav>
 <div><h2 class="footer-h">Contact</h2><ul><li><a href="tel:{C.PHONE_TEL}" {cta("call-footer", ctx)}>Call or text {C.PHONE}</a></li>{email_row}</ul>
-<h2 class="footer-h">Follow</h2><ul><li><a href="{C.LINKEDIN}" rel="noopener">LinkedIn</a></li><li class="placeholder-link">Facebook (future)</li><li class="placeholder-link">Instagram (future)</li></ul></div>
+<h2 class="footer-h">Follow</h2><ul>{follow}</ul></div>
 <div><h2 class="footer-h">Policies</h2><ul>{policies}</ul>
 {sister}</div>
 </div>
