@@ -415,7 +415,9 @@ def r_hub_contact(ctx, s):
 
 def r_notprovided(ctx, s):
     """The five services neither practice provides. Verbatim from the owner's vision document."""
-    head, hid = heading(ctx, s)
+    # heading() renders "intro" as the section lede, and this renders it again below, so the
+    # paragraph appeared twice on the page. Keep it out of the heading and print it once.
+    head, hid = heading(ctx, dict(s, intro=None))
     rows = "".join(f"<li>{i}</li>" for i in s["items"])
     return section(s, f'<div class="prose">{head}<p>{s["intro"]}</p>'
                       f'<ul class="softlist not-provided">{rows}</ul></div>', hid=hid)
