@@ -70,7 +70,8 @@ SITE = {
 }
 
 CONFIDENTIAL_GUIDE = ("In accordance with the Maryland Mediation and Confidentiality Act, all mediation-related "
-                      "communication will remain confidential.")
+                      "communication will remain confidential. The full statement, with both wordings, is on the "
+                      "Disclaimers page.")
 
 FAQ = [
     {"q": "What services does Transformative Life Solutions offer?",

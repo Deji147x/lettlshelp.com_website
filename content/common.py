@@ -161,6 +161,13 @@ PROFESSIONAL_STANDARDS = (
     "conflict‑resolution professionals including the Maryland Standards of Conduct for Mediators and "
     "Maryland Uniform Arbitration Act (MUAA)."
 )
+# The owner chose (2026-09-22) to publish BOTH confidentiality statements rather than pick one,
+# each labelled with where it came from. An attorney still has to settle which is correct.
+CONFIDENTIALITY_OPTIONS = [
+    ("From the practice's website guide", CONFIDENTIALITY_ACT),
+    ("From the practice's brief", RULE17),
+]
+
 CONFIDENTIALITY_REVIEW = (
     "Two wordings are on the table and an attorney must choose one. The vision document names the "
     "“Maryland Mediation and Confidentiality Act”; the earlier brief cites Maryland Rule 17 for the "

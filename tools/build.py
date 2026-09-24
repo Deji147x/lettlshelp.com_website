@@ -350,6 +350,18 @@ def mark_open_items(text):
     return re.sub(r"\[([^\]]+)\]", r'<span class="open-item">[\1]</span>', text)
 
 
+def r_options(ctx, s):
+    """Two wordings of the same statement, each labelled with where it came from.
+
+    Used for the confidentiality statement, where the owner's guide and her brief cite
+    different authorities and both are published until an attorney settles it.
+    """
+    head, hid = heading(ctx, s)
+    blocks = "".join(f'<div class="option"><p class="option-label">{label}</p><p>{text}</p></div>'
+                     for label, text in s["options"])
+    return section(s, f'<div class="prose">{head}{blocks}</div>', hid=hid)
+
+
 def r_legal(ctx, s):
     head, hid = heading(ctx, s)
     blocks = "".join(f'<h3>{title}</h3><p class="placeholder-text">{note}</p>' for title, note in s["outline"])
@@ -609,6 +621,7 @@ RENDER = {
     # Hub and About additions, 2026-09-16.
     "hub_hero": r_hub_hero, "practices": r_practices, "router": r_router, "hub_contact": r_hub_contact,
     "notprovided": r_notprovided, "credgroups": r_credgroups, "policy": r_policy,
+    "options": r_options,
 }
 
 
