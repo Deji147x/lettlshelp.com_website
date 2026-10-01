@@ -138,8 +138,7 @@ ETHICS_SCREENING = (
     "documentation of all screening decisions."
 )
 ETHICS_REFERRAL_INTRO = (
-    "If we are unable to facilitate your matter, we will provide free supportive "
-    "referrals. Suggested referrals may include:"
+    "If we are unable to facilitate your matter, we will provide free supportive referrals."
 )
 
 NOT_PROVIDED = [
@@ -162,6 +161,13 @@ PROFESSIONAL_STANDARDS = (
     "conflict‑resolution professionals including the Maryland Standards of Conduct for Mediators and "
     "Maryland Uniform Arbitration Act (MUAA)."
 )
+# The owner chose (2026-09-22) to publish BOTH confidentiality statements rather than pick one,
+# each labelled with where it came from. An attorney still has to settle which is correct.
+CONFIDENTIALITY_OPTIONS = [
+    ("From the practice's website guide", CONFIDENTIALITY_ACT),
+    ("From the practice's brief", RULE17),
+]
+
 CONFIDENTIALITY_REVIEW = (
     "Two wordings are on the table and an attorney must choose one. The vision document names the "
     "“Maryland Mediation and Confidentiality Act”; the earlier brief cites Maryland Rule 17 for the "
@@ -295,10 +301,8 @@ TERMS_OF_USE = [
            "dispute before we confirm we can help. If a matter is sensitive, call or text us.",
            "We cannot guarantee that an email reaches us, so if you do not hear back, please phone."]},
     {"h": "Fees, scheduling, and cancellations",
-     "p": ["[Owner to supply: fees and how they are charged, whether a consultation is free, how fees "
-           "are split between parties, deposits, payment methods, and the cancellation and "
-           "rescheduling policy. This section must be completed before any online payment or booking "
-           "is switched on.]"]},
+     "p": ["Services are provided for a fee. Cancellation charges may apply. Please read your "
+           "agreements and contracts carefully."]},
     {"h": "Our content",
      "p": ["The text, logos, and design of this site belong to us and may not be copied or reused "
            "commercially without permission. You are welcome to print or share pages for your own "
@@ -310,12 +314,9 @@ TERMS_OF_USE = [
     {"h": "Availability",
      "p": ["We try to keep the site accurate and available, but we cannot promise it will always be up "
            "to date or free of interruptions or errors."]},
-    {"h": "Limitation of liability",
-     "p": ["[Attorney to draft. This clause should state the limits of our liability for use of the "
-           "website, consistent with Maryland law and with the practice's insurance.]"]},
-    {"h": "Governing law",
-     "p": ["[Attorney to confirm. The intention is that these terms are governed by the laws of the "
-           "State of Maryland, and that disputes are handled in Maryland.]"]},
+    # "Limitation of liability" and "Governing law" were removed at the owner's request
+    # (2026-09-22) rather than published as attorney-to-draft placeholders. Both are standard
+    # in website terms; add them back once an attorney has drafted the wording.
     {"h": "Changes and contact",
      "p": ["We may update these terms. The date at the top of the page shows when they last changed. "
            "Questions about these terms can go to either practice address or to our phone number."]},

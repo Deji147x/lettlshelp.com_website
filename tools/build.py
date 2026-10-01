@@ -350,6 +350,18 @@ def mark_open_items(text):
     return re.sub(r"\[([^\]]+)\]", r'<span class="open-item">[\1]</span>', text)
 
 
+def r_options(ctx, s):
+    """Two wordings of the same statement, each labelled with where it came from.
+
+    Used for the confidentiality statement, where the owner's guide and her brief cite
+    different authorities and both are published until an attorney settles it.
+    """
+    head, hid = heading(ctx, s)
+    blocks = "".join(f'<div class="option"><p class="option-label">{label}</p><p>{text}</p></div>'
+                     for label, text in s["options"])
+    return section(s, f'<div class="prose">{head}{blocks}</div>', hid=hid)
+
+
 def r_legal(ctx, s):
     head, hid = heading(ctx, s)
     blocks = "".join(f'<h3>{title}</h3><p class="placeholder-text">{note}</p>' for title, note in s["outline"])
@@ -415,7 +427,9 @@ def r_hub_contact(ctx, s):
 
 def r_notprovided(ctx, s):
     """The five services neither practice provides. Verbatim from the owner's vision document."""
-    head, hid = heading(ctx, s)
+    # heading() renders "intro" as the section lede, and this renders it again below, so the
+    # paragraph appeared twice on the page. Keep it out of the heading and print it once.
+    head, hid = heading(ctx, dict(s, intro=None))
     rows = "".join(f"<li>{i}</li>" for i in s["items"])
     return section(s, f'<div class="prose">{head}<p>{s["intro"]}</p>'
                       f'<ul class="softlist not-provided">{rows}</ul></div>', hid=hid)
@@ -607,6 +621,7 @@ RENDER = {
     # Hub and About additions, 2026-09-16.
     "hub_hero": r_hub_hero, "practices": r_practices, "router": r_router, "hub_contact": r_hub_contact,
     "notprovided": r_notprovided, "credgroups": r_credgroups, "policy": r_policy,
+    "options": r_options,
 }
 
 
@@ -857,16 +872,17 @@ def render_page(site, page):
     ctx = Ctx(site, page)
     body = "".join(RENDER[s["type"]](ctx, s) for s in page["sections"])
     html = head(ctx) + header(ctx) + f'<main id="main" tabindex="-1">{body}</main>\n' + footer(ctx)
-    if WIREFRAME:
-        # Preview only: cross-practice links point at the local wireframe folders, so nothing 404s
-        # before launch. Canonical, Open Graph, sitemap, and schema URLs keep the real
-        # lettlshelp.com paths. Ctx.root already knows how deep this page sits.
-        for other in MODULES:
-            if other.SITE is not site and other.SITE["slug"]:
-                target = re.escape(site_url(other.SITE))
-                local = ctx.root + other.SITE["slug"] + "/"
-                html = re.sub(rf'(<a\s[^>]*?href="){target}"', rf'\g<1>{local}"', html)
-    else:
+    # Cross-practice links are written absolute in content (SISTER_URL), but they point at this
+    # same site. Rewrite them to relative paths so they work wherever the site is served from —
+    # a staging host, a preview under a subpath, or the live domain — and so they keep working
+    # when each practice moves to its own domain. Canonical, Open Graph, sitemap and schema URLs
+    # are untouched and stay absolute; only <a href> is rewritten.
+    for other in MODULES:
+        if other.SITE is not site and other.SITE["slug"]:
+            target = re.escape(site_url(other.SITE))
+            local = ctx.root + other.SITE["slug"] + "/"
+            html = re.sub(rf'(<a\s[^>]*?href="){target}"', rf'\g<1>{local}"', html)
+    if not WIREFRAME:
         # The pattern labels are notes to whoever builds the WordPress theme, not site content.
         html = re.sub(r'\s+data-wf="[^"]*"', "", html)
     dest = OUT.joinpath(site["slug"], page["slug"], "index.html")

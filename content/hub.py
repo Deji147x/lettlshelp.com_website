@@ -8,7 +8,7 @@ carries the Transformative Life Solutions logo (owner's instructions, 2026-09-22
 The footer and the Contact page still offer both practice addresses, so anyone who
 already knows which practice they need can write to it directly.
 """
-from common import (CONFIDENTIALITY_ACT, CONFIDENTIALITY_REVIEW, EMAIL_LEADERSHIP, EMAIL_LIFE,
+from common import (CONFIDENTIALITY_OPTIONS, CONFIDENTIALITY_REVIEW, EMAIL_LEADERSHIP, EMAIL_LIFE,
                     ETHICS_COMMITMENT, ETHICS_COMPLIANCE_SAFE, ETHICS_REFERRAL_INTRO,
                     ETHICS_SCOPE_LEADERSHIP, ETHICS_SCOPE_LIFE, ETHICS_SCREENING, GSC_TOKEN,
                     ATTORNEY_REVIEW, NOT_PROVIDED, NOT_PROVIDED_INTRO, POLICY_UPDATED,
@@ -205,8 +205,11 @@ PAGES = [
              "lede": "Covers both Transformative Life Solutions and Transformative Leadership Systems."},
             {"type": "notprovided", "wf": "Pattern: tls/disclaimers", "tone": "white",
              "h2": "What we do not provide", "intro": NOT_PROVIDED_INTRO, "items": NOT_PROVIDED},
-            {"type": "text", "wf": "Pattern: tls/text", "tone": "soft", "h2": "Confidentiality",
-             "paras": [CONFIDENTIALITY_ACT], "draft": CONFIDENTIALITY_REVIEW},
+            {"type": "options", "wf": "Pattern: tls/disclaimers", "tone": "soft",
+             "h2": "Confidentiality",
+             "intro": "Mediation‑related communication is confidential. Two statements of that "
+                      "commitment are set out below, from the practice's own guide and brief.",
+             "options": CONFIDENTIALITY_OPTIONS, "draft": CONFIDENTIALITY_REVIEW},
             {"type": "text", "wf": "Pattern: tls/text", "tone": "white", "h2": "Professional Standards",
              "paras": [PROFESSIONAL_STANDARDS]},
             {"type": "text", "wf": "Pattern: tls/text", "tone": "soft", "h2": "Terms of use",

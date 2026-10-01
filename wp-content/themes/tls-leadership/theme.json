@@ -1,0 +1,85 @@
+{
+  "$schema": "https://schemas.wp.org/trunk/theme.json",
+  "version": 3,
+  "settings": {
+    "color": {
+      "palette": [
+        {
+          "slug": "deep-leadership-blue",
+          "name": "Deep Leadership Blue",
+          "color": "#0F2040"
+        },
+        {
+          "slug": "growth-teal-green",
+          "name": "Growth Teal Green",
+          "color": "#2B4E47"
+        },
+        {
+          "slug": "transformative-green-grey",
+          "name": "Transformative Green Grey",
+          "color": "#6D8271"
+        },
+        {
+          "slug": "systems-light-blue-grey",
+          "name": "Systems Light Blue Grey",
+          "color": "#8CB5C2"
+        },
+        {
+          "slug": "leadership-ocher-yellow",
+          "name": "Leadership Ocher Yellow",
+          "color": "#C89B5F"
+        },
+        {
+          "slug": "neutral-grey-text",
+          "name": "Neutral Grey Text",
+          "color": "#7A7A7A"
+        },
+        {
+          "slug": "base-off-white-canvas",
+          "name": "Base Off White Canvas",
+          "color": "#F8F8F8"
+        },
+        {
+          "slug": "blue-grey-tint",
+          "name": "Blue Grey Tint",
+          "color": "#EAF1F3"
+        },
+        {
+          "slug": "line",
+          "name": "Line",
+          "color": "#DDE3E3"
+        },
+        {
+          "slug": "ink",
+          "name": "Ink",
+          "color": "#1A2233"
+        },
+        {
+          "slug": "muted-ink",
+          "name": "Muted Ink",
+          "color": "#51595C"
+        }
+      ],
+      "defaultPalette": false
+    },
+    "typography": {
+      "fontFamilies": [
+        {
+          "fontFamily": "\"Merriweather\", Georgia, serif",
+          "slug": "heading",
+          "name": "Merriweather"
+        },
+        {
+          "fontFamily": "\"Lato\", system-ui, sans-serif",
+          "slug": "body",
+          "name": "Lato"
+        },
+        {
+          "fontFamily": "\"Playfair Display\", Georgia, serif",
+          "slug": "accent",
+          "name": "Playfair Display"
+        }
+      ]
+    }
+  }
+}

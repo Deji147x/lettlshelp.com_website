@@ -403,7 +403,7 @@ PAGES = [
             {"type": "list", "wf": "Pattern: tls/referrals", "tone": "white",
              "h2": "If we can't assist, we'll point you to support",
              "intro": "If we are unable to facilitate your matter, we will provide free supportive "
-                      "referrals. Suggested referrals may include:",
+                      "referrals.",
              "items": REFERRALS},
             {"type": "text", "wf": "Pattern: tls/text", "tone": "mist", "h2": "Before you begin",
              "bullets": ["We provide neutral ADR services only. We do not provide legal advice, legal representation, "
