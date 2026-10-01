@@ -872,16 +872,17 @@ def render_page(site, page):
     ctx = Ctx(site, page)
     body = "".join(RENDER[s["type"]](ctx, s) for s in page["sections"])
     html = head(ctx) + header(ctx) + f'<main id="main" tabindex="-1">{body}</main>\n' + footer(ctx)
-    if WIREFRAME:
-        # Preview only: cross-practice links point at the local wireframe folders, so nothing 404s
-        # before launch. Canonical, Open Graph, sitemap, and schema URLs keep the real
-        # lettlshelp.com paths. Ctx.root already knows how deep this page sits.
-        for other in MODULES:
-            if other.SITE is not site and other.SITE["slug"]:
-                target = re.escape(site_url(other.SITE))
-                local = ctx.root + other.SITE["slug"] + "/"
-                html = re.sub(rf'(<a\s[^>]*?href="){target}"', rf'\g<1>{local}"', html)
-    else:
+    # Cross-practice links are written absolute in content (SISTER_URL), but they point at this
+    # same site. Rewrite them to relative paths so they work wherever the site is served from —
+    # a staging host, a preview under a subpath, or the live domain — and so they keep working
+    # when each practice moves to its own domain. Canonical, Open Graph, sitemap and schema URLs
+    # are untouched and stay absolute; only <a href> is rewritten.
+    for other in MODULES:
+        if other.SITE is not site and other.SITE["slug"]:
+            target = re.escape(site_url(other.SITE))
+            local = ctx.root + other.SITE["slug"] + "/"
+            html = re.sub(rf'(<a\s[^>]*?href="){target}"', rf'\g<1>{local}"', html)
+    if not WIREFRAME:
         # The pattern labels are notes to whoever builds the WordPress theme, not site content.
         html = re.sub(r'\s+data-wf="[^"]*"', "", html)
     dest = OUT.joinpath(site["slug"], page["slug"], "index.html")
