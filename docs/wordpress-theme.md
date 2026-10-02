@@ -15,17 +15,30 @@ directly**, or the theme and the static site drift apart and the owner gets two 
 | Theme | Role |
 |---|---|
 | `tls-base` | Parent. Layout, typography, spacing, header, footer, templates, and the section patterns. **Never activate this one.** |
-| `tls-hub` | Child for the domain root (LetTLSHelp), carrying the Life Solutions logo and palette |
-| `tls-life` | Child for Transformative Life Solutions — teal, Lora + Open Sans |
-| `tls-leadership` | Child for Transformative Leadership Systems — navy, Merriweather + Lato |
+| `tls-lettlshelp` | Child. All three brands in one theme. **This is the one you activate.** |
 
-Each child holds only its brand layer: the `--c-*` custom properties, its two typefaces, its
-colour palette for the editor, and its logo. Everything else is inherited.
+### Why one child theme, not three
+
+WordPress activates **one theme at a time**. The root and the two practice sections each have
+their own palette, typefaces and logo, but they are all one install, so they cannot be three
+active child themes — activating one would paint the whole site in its colours.
+
+Instead the child ships all three brand layers, each scoped to a body class exactly as in the
+static build (`.site-hub`, `.site-life`, `.site-leadership`), and `functions.php` sets that class
+from the URL path:
+
+| URL starts with | Body class | Brand |
+|---|---|---|
+| `/life-solutions/` | `site-life` | Teal, Lora + Open Sans |
+| `/leadership-systems/` | `site-leadership` | Navy, Merriweather + Lato |
+| anything else | `site-hub` | The root |
+
+Each section also loads only its own typefaces, and swaps the Site Logo image to its own mark.
 
 ## Installing
 
-1. Zip `tls-base` and the child you want, upload both under **Appearance → Themes → Add New**.
-2. Activate the **child**, never the parent.
+1. Zip `tls-base` and `tls-lettlshelp`, upload both under **Appearance → Themes → Add New**.
+2. Activate **tls-lettlshelp**, never the parent.
 3. **Appearance → Editor → Patterns** shows the sections under **TLS sections**.
 4. Build each page from the static site's equivalent, dropping in the patterns in the same order.
    Every page's section order is on the review build at `/page-index.html` with "Show wireframe
@@ -61,6 +74,7 @@ block editor without being able to break the layout.
 
 | Change | Do this |
 |---|---|
+| A new section with its own brand | Add it to `SECTIONS` in `tools/build_theme.py` and give it a brand CSS file |
 | A colour or typeface | Edit `design-system/tokens.json` or the brand CSS, re-run `build_theme.py` |
 | Shared component styling | Edit `design-system/base.css`, re-run `build_theme.py` |
 | Referral list, social links, founder credentials | Edit `content/common.py`, re-run `build_theme.py` |

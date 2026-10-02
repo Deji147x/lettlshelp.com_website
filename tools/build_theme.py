@@ -37,14 +37,17 @@ THEMES = ROOT / "wp-content" / "themes"
 TOKENS = json.loads((DESIGN / "tokens.json").read_text("utf-8"))
 VERSION = "1.0.0"
 
-# Each child theme: folder, display name, the site module, its brand CSS, and which palette in
-# tokens.json to expose in the editor. The hub has no palette of its own, so it borrows the
-# Life Solutions one, exactly as it borrows that logo.
-CHILDREN = [
-    ("tls-hub", "TLS — LetTLSHelp (hub)", hub, "hub.css", "life-solutions"),
-    ("tls-life", "TLS — Transformative Life Solutions", life, "life.css", "life-solutions"),
-    ("tls-leadership", "TLS — Transformative Leadership Systems", leadership, "leadership.css",
-     "leadership-systems"),
+# WordPress runs ONE theme at a time, so the three brands cannot be three active child themes on
+# one install. Instead a single child ships all three brand layers, each scoped to a body class,
+# and functions.php sets that class from the URL path — the same mechanism the static site uses
+# (`body class="site-life"`). One install, one theme, three brands.
+CHILD = ("tls-lettlshelp", "LetTLSHelp", "life-solutions")
+
+# section key -> (url prefix, site module, brand CSS file)
+SECTIONS = [
+    ("hub", "", hub, "hub.css"),
+    ("life", "life-solutions", life, "life.css"),
+    ("leadership", "leadership-systems", leadership, "leadership.css"),
 ]
 
 
@@ -476,7 +479,7 @@ def build_base():
     return base
 
 
-def child_theme_json(site, palette_key):
+def child_theme_json(palette_key):
     palette = TOKENS[palette_key]["palette"]
     fonts = TOKENS[palette_key]["fonts"]
     colors = [{"slug": slugify(name), "name": name.replace("-", " ").title(), "color": meta["hex"]}
@@ -496,49 +499,105 @@ def child_theme_json(site, palette_key):
     }
 
 
-def build_children(base):
-    made = []
-    for folder, name, module, brand_css, palette_key in CHILDREN:
-        site = module.SITE
-        path = THEMES / folder
-        header = style_header(name, f'Brand layer for {site["name"]}.', template="tls-base")
-        brand = (DESIGN / brand_css).read_text("utf-8")
-        # The static site scopes the brand layer to a body class; in WordPress the child theme
-        # is the only one active, so the custom properties go straight onto :root.
-        scoped = brand.replace(f'.site-{site["key"]}', ":root, body")
-        write(path / "style.css", header + "\n" + scoped)
-        write(path / "theme.json", json.dumps(child_theme_json(site, palette_key), indent=2) + "\n")
+def build_child():
+    """One child theme carrying all three brands, switched by URL path.
 
-        # The Google Fonts URL each site already uses, so the typefaces match the static build.
-        write(path / "functions.php", f"""<?php
+    WordPress activates a single theme, so the three practices cannot be three active child
+    themes. Each brand layer keeps its own body-class scope (.site-hub, .site-life,
+    .site-leadership) exactly as in the static build, and functions.php sets that class from
+    the request path. Same CSS, same result, one theme.
+    """
+    folder, name, palette_key = CHILD
+    path = THEMES / folder
+
+    layers = [style_header(name, "Brand layers for all three sections of lettlshelp.com. The "
+                                 "active section is set from the URL path by functions.php.",
+                           template="tls-base")]
+    layers.append("\n/* Default, before a section class is applied (wp-admin, the editor). */\n"
+                  + (DESIGN / "hub.css").read_text("utf-8").replace(".site-hub", ":root"))
+    for key, _prefix, _module, brand_css in SECTIONS:
+        layers.append(f"\n/* --- {key} --- */\n" + (DESIGN / brand_css).read_text("utf-8"))
+
+    # Each section shows its own logo. The header's Site Logo block renders <img class="custom-logo">,
+    # so the brand mark is swapped per section rather than needing three separate media settings.
+    layers.append("""
+/* Per-section logo. The Site Logo block gives one image site-wide, so each practice section
+   points it at its own mark. Set the Life Solutions logo as the WordPress Site Icon/Logo; the
+   rules below override it inside the other sections. */
+.site-leadership .custom-logo { content: url("assets/leadership-logo-mark.png"); }
+.site-life .custom-logo,
+.site-hub .custom-logo { content: url("assets/life-logo-mark.png"); }
+""")
+    write(path / "style.css", "".join(layers))
+    write(path / "theme.json", json.dumps(child_theme_json(palette_key), indent=2) + "\n")
+
+    fonts_php = "\n".join(
+        f"        case '{key}':\n            return '{module.SITE['fonts']}';"
+        for key, _prefix, module, _css in SECTIONS)
+    prefixes = "\n".join(
+        f"    if ( strpos( $path, '/{prefix}/' ) === 0 ) {{\n        return '{key}';\n    }}"
+        for key, prefix, _module, _css in SECTIONS if prefix)
+
+    write(path / "functions.php", f"""<?php
 /**
- * {name}: brand-specific setup.
+ * {name}: one theme, three brands.
+ *
+ * lettlshelp.com runs as a single WordPress install, but the root and the two practice
+ * sections each have their own palette, typefaces and logo. WordPress activates one theme,
+ * so the section is decided from the URL path and applied as a body class — the same
+ * mechanism the static build uses.
  */
 
 if ( ! defined( 'ABSPATH' ) ) {{
     exit;
 }}
 
+/**
+ * Which section of the site is being viewed: 'life', 'leadership', or 'hub'.
+ */
+function tls_section() {{
+    $path = isset( $_SERVER['REQUEST_URI'] ) ? wp_parse_url( $_SERVER['REQUEST_URI'], PHP_URL_PATH ) : '/';
+    $path = '/' . trim( (string) $path, '/' ) . '/';
+{prefixes}
+    return 'hub';
+}}
+
+/**
+ * The body class every brand layer in style.css is scoped to.
+ */
+add_filter( 'body_class', function ( $classes ) {{
+    $classes[] = 'site-' . tls_section();
+    return $classes;
+}} );
+
+/**
+ * Each section loads only the typefaces it uses, rather than all three everywhere.
+ */
 add_filter( 'tls_google_fonts_url', function () {{
-    return '{site["fonts"]}';
+    switch ( tls_section() ) {{
+{fonts_php}
+    }}
+    return '';
 }} );
 """)
-        assets = ROOT / "wireframes" / site["slug"] / "assets"
+
+    (path / "assets").mkdir(parents=True, exist_ok=True)
+    for key, _prefix, module, _css in SECTIONS:
+        source_slug = module.SITE["slug"] or "life-solutions"
+        assets = ROOT / "wireframes" / source_slug / "assets"
         for asset in ("logo.png", "logo-mark.png", "favicon.ico", "og-image.jpg"):
             source = assets / asset
             if source.exists():
-                (path / "assets").mkdir(parents=True, exist_ok=True)
-                shutil.copy2(source, path / "assets" / asset)
-        made.append(path)
-    return made
+                shutil.copy2(source, path / "assets" / f"{key}-{asset}")
+    return path
 
 
 def main():
     if THEMES.exists():
         shutil.rmtree(THEMES)
     base = build_base()
-    children = build_children(base)
-    for path in [base] + children:
+    child = build_child()
+    for path in (base, child):
         count = sum(1 for _ in path.rglob("*") if _.is_file())
         print(f"wrote {path.relative_to(ROOT).as_posix()}  ({count} files)")
 
