@@ -121,6 +121,16 @@ Text Domain: lettlshelp
    its own containers, so the row needs rebuilding here. Without these the
    navigation wraps onto several lines and squeezes the button into a circle.
    --------------------------------------------------------------------------- */
+/* WordPress caps every direct child of a constrained group at the *content* width (46rem).
+   That is right for a paragraph and wrong for a full-width bar: the header row was squeezed
+   into 736px, which left the five menu items about 412px to sit in. Being centred and set to
+   never wrap, they spilled out of their box in both directions and landed on top of the logo
+   on one side and the Request a Consultation button on the other. The header row and the
+   footer grid take the site container width instead, exactly as they do in the static build.
+   `.container` then does the rest, including the gutter on narrow screens. */
+.site-header .header-inner,
+.site-footer .footer-grid { max-width: none; }
+
 .site-header .header-inner {
   display: flex; align-items: center; gap: 1.5rem; flex-wrap: nowrap;
   padding-block: .85rem;
