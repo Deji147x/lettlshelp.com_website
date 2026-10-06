@@ -268,11 +268,17 @@ function tls_seo_map() {
  *
  * Rewriting on output, rather than editing twenty pages, keeps the stored content identical to
  * the approved build. If the pictures are ever moved into the Media Library, delete this.
+ *
+ * Two details earned their keep. The pattern also accepts a leading slash, because WordPress's
+ * own image filter normalises an <img src> to "/assets/img/..." before this runs and the earlier
+ * pattern then skipped it — the srcset was rewritten and the plain src was left behind, so the
+ * fallback JPEG 404ed on fourteen images. And this runs at priority 9, ahead of that filter, so
+ * core sees finished addresses rather than half-rewritten ones.
  */
 add_filter( 'the_content', function ( $content ) {
     return preg_replace(
-        '#(?<=["\'\s,])(?:\.\./)*assets/img/#',
-        trailingslashit( get_template_directory_uri() ) . 'assets/img/',
+        '#(["\'\s,])(?:/|(?:\.\./)+)?assets/img/#',
+        '$1' . trailingslashit( get_template_directory_uri() ) . 'assets/img/',
         $content
     );
-}, 20 );
+}, 9 );
