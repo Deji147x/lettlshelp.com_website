@@ -216,6 +216,9 @@ PRIVACY_POLICY = [
            "So that a long message is not lost if your email app shortens it, the form also copies your "
            "answers to your device's clipboard. They stay there until you copy something else. We never "
            "see your clipboard.",
+           "If your browser has no email app to open — which is common if you read your mail on the web "
+           "— the page shows you the finished message so you can copy it into your own webmail. That "
+           "text is only on your screen; it is not sent anywhere until you send it yourself.",
            "Because the message is created inside your own email app, this website never receives or "
            "stores what you typed."]},
     {"h": "What we ask for, and what not to send",
@@ -227,27 +230,19 @@ PRIVACY_POLICY = [
     {"h": "Information collected automatically",
      "p": ["Our web host keeps standard server logs: the IP address you connect from, your browser and "
            "device type, which pages you requested, and when. These are used to keep the site running "
-           "and secure, and we do not use them to build a profile of you.",
-           "[Owner to confirm the host and how long it keeps logs.]"]},
+           "and secure, and we do not use them to build a profile of you."]},
     {"h": "Typefaces served by Google",
      "p": ["The site's typefaces load from Google Fonts. To deliver them, Google receives your IP "
            "address and basic browser information. Google does not set cookies for this, and we send "
-           "Google nothing else about you.",
-           "[Recommended: self-host the typefaces when the site moves to WordPress. The fonts then come "
-           "from our own server and this section can be removed.]"]},
+           "Google nothing else about you."]},
     {"h": "Cookies, analytics, and tracking",
      "p": ["This site sets no cookies, uses no browser storage, and has no analytics, advertising, or "
            "social media tracking installed. That is why you are not asked to accept cookies.",
            "If we add analytics later, we will update this policy and say plainly what is collected "
            "before it goes live."]},
-    {"h": "Booking appointments",
-     "p": ["Online booking is not switched on yet. When it is, appointments will be scheduled through "
-           "Google Calendar, and the name, email address, and time you enter will be processed by "
-           "Google in order to make and confirm the booking."]},
     {"h": "Screening records",
      "p": ["We keep a record of screening decisions, including matters we cannot accept and the reason, "
-           "because our ethics obligations require us to document them.",
-           "[Owner and attorney to confirm how long screening records are kept and how they are stored.]"]},
+           "because our ethics obligations require us to document them."]},
     {"h": "Who else sees your information",
      "p": ["Your email reaches our email provider, and our website is served by our web host. We do not "
            "share your information with anyone else except where the law requires it.",
@@ -256,8 +251,7 @@ PRIVACY_POLICY = [
      "p": ["You can ask us what information we hold about you, ask us to correct it, or ask us to delete "
            "it. Email or call us and we will respond.",
            "We may need to keep screening records even after a request to delete, where our ethics "
-           "obligations require it. [Attorney to confirm which privacy laws apply to this practice and "
-           "what rights they give.]"]},
+           "obligations require it."]},
     {"h": "Children",
      "p": ["This website is meant for adults and is not directed to children under 13. We do not "
            "knowingly collect information from children."]},

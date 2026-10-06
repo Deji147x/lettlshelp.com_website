@@ -474,14 +474,17 @@ def r_contact(ctx, s):
     site = ctx.site
     call_label = f'Call or text {site["name"]}'
     mail_label = f'Email {site["name"]}'
+    # Intake first, then email, then phone, on the owner's instruction (review 2026-10-05).
+    # The screening is the route that actually gets someone seen, so it leads rather than trails.
     items = [
-        ("phone", "Phone or text",
-         f'<a href="tel:{C.PHONE_TEL}" {cta("call", ctx, call_label)}>{C.PHONE_INTL}</a>'),
+        ("clipboard", "Begin intake",
+         f'Complete our online screening and we will arrange a consultation appointment if you are '
+         f'eligible for services. '
+         f'<a href="{ctx.href("begin-intake")}" {cta("intake-start", ctx)}>Start the screening</a>.'),
         ("mail", "Email",
          f'<a href="mailto:{site["email"]}" {cta("email", ctx, mail_label)}>{site["email"]}</a>'),
-        ("clipboard", "Begin intake",
-         f'Complete the online screening so we can confirm eligibility. '
-         f'<a href="{ctx.href("begin-intake")}" {cta("intake-start", ctx)}>Start the screening</a>.'),
+        ("phone", "Phone or text",
+         f'<a href="tel:{C.PHONE_TEL}" {cta("call", ctx, call_label)}>{C.PHONE_INTL}</a>'),
     ]
     contact_list = "".join(f'<li class="contact-item">{icon(i)}<div><strong>{t}</strong><p>{body}</p></div></li>'
                            for i, t, body in items)
@@ -502,10 +505,14 @@ def r_contact(ctx, s):
 </form>'''
     note = draft_flag("Suggested safety line for a trauma-informed site; owner to approve: "
                       "“If you are in immediate danger, call 911.”")
-    head, hid = heading(ctx, {"h2": "Request a consultation"})
-    return section(s, f'<div class="contact-grid"><div>{head}<ul class="contact-list">{contact_list}</ul>{note}'
-                      f'<p class="muted">Serving clients with virtual and in‑person options.</p></div>{form}</div>',
-                   hid=hid)
+    # The "Request a consultation" heading was dropped on the owner's review, 2026-10-05: the page's
+    # own H1 already says this is Contact, and the three ways to reach the practice speak for
+    # themselves. The list keeps an accessible name so the section is still navigable by heading
+    # order and by screen reader.
+    return section(s, f'<div class="contact-grid"><div>'
+                      f'<ul class="contact-list" aria-label="Ways to reach {attr(site["name"])}">'
+                      f'{contact_list}</ul>{note}'
+                      f'<p class="muted">Serving clients with virtual and in‑person options.</p></div>{form}</div>')
 
 
 def party_block(n, roles, required=False):
@@ -821,10 +828,14 @@ def header(ctx):
 
 def footer(ctx):
     site = ctx.site
-    # Footer navigation stays flat: top-level entries only, so it doesn't restate the dropdowns.
-    nav = "".join(f'<li><a href="{ctx.href(entry[0])}">{entry[1]}</a></li>' for entry in site["nav"])
     # The policy pages live at the domain root and serve both practices, so they are root-relative.
     policies = "".join(f'<li><a href="{ctx.href("/" + slug)}">{label}</a></li>' for slug, label in site["policies"])
+    # Footer navigation stays flat: top-level entries only, so it doesn't restate the dropdowns.
+    # Anything that also appears under Policies is left out, or Ethics & Compliance is listed
+    # twice in the same footer (owner's review, 2026-10-05).
+    in_policies = {slug for slug, _label in site["policies"]}
+    nav = "".join(f'<li><a href="{ctx.href(entry[0])}">{entry[1]}</a></li>'
+                  for entry in site["nav"] if str(entry[0]).strip("/") not in in_policies)
     if site.get("wordmark"):
         brand = f'<p class="footer-wordmark">{site["word_top"]}</p>'
     else:

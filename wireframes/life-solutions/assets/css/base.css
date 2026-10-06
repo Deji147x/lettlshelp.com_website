@@ -343,11 +343,15 @@ a:hover { color: var(--c-primary-hover); }
 .cta-box p { font-size: 1.1rem; }
 .cta-contact { margin-top: 1.25rem; font-size: .98rem; }
 
-/* Integration slots & review flags (visible in the wireframe on purpose) */
+/* Integration slots & review flags.
+   The dashed, hatched treatment said "nothing real here yet", which was right while these blocks
+   were placeholders. The only one left on the site is the free-referrals card, which is real
+   content, so it now matches the ordinary cards around it (owner's review, 2026-10-05). */
 .slot {
-  border: 2px dashed var(--c-primary); border-radius: var(--radius); padding: 1.5rem 1.75rem;
-  background: repeating-linear-gradient(135deg, transparent 0 12px, rgba(0, 0, 0, .02) 12px 24px), #FFFFFF;
+  background: #FFFFFF; border: 1px solid var(--c-line); border-radius: var(--radius);
+  padding: 1.5rem 1.75rem;
 }
+.tone-soft .slot, .tone-mist .slot { border-color: transparent; box-shadow: var(--shadow); }
 .slot-label {
   display: inline-block; margin-bottom: .6rem; padding: .2rem .65rem; border-radius: 999px;
   background: var(--c-soft-1); color: var(--c-deep);
@@ -469,11 +473,31 @@ form.wf-form { background: #FFFFFF; border: 1px solid var(--c-line); border-radi
 @media (max-width: 560px) { .footer-grid { grid-template-columns: 1fr; } }
 .footer-logo { width: 170px; background: #FFFFFF; border-radius: var(--radius); padding: .9rem; margin-bottom: 1.1rem; }
 .footer-h { font: 700 .8rem/1.3 var(--f-body); letter-spacing: .12em; text-transform: uppercase; color: #FFFFFF; margin: 0 0 .9rem; }
+/* A second heading in the same column — Follow under Contact, Sister practice under Policies —
+   ran straight on from the list above it. A hairline and some air separate the two groups.
+   The static build ends a group with a <ul>, the WordPress footer with a <p>, so both lead in. */
+.site-footer ul + .footer-h,
+.site-footer p + .footer-h { border-top: 1px solid rgba(255, 255, 255, .18); padding-top: 1.4rem; }
 .site-footer ul { list-style: none; padding: 0; margin: 0 0 1.75rem; display: grid; gap: .45rem; }
 .footer-muted { color: #C5D2D6; font-size: .9rem; }
 .placeholder-link { color: #C5D2D6; font-style: italic; }
 .footer-legal { border-top: 1px solid rgba(255, 255, 255, .18); margin-top: 1.5rem; padding-block: 1.5rem; font-size: .85rem; color: #C5D2D6; }
 .footer-legal p { margin: .3rem 0; }
+
+/* Shown after a form is submitted, so a visitor whose browser has no mail app still has the
+   finished message in front of them to copy into webmail. */
+.form-fallback {
+  margin-top: 1.6rem; padding: 1.25rem 1.4rem; border-radius: var(--radius);
+  border: 1px solid var(--c-line); background: var(--c-soft-2, #F4F7F7);
+}
+.form-fallback h3 { margin: 0 0 .5rem; }
+.form-fallback p { margin: 0 0 .75rem; }
+.form-fallback .fallback-text {
+  width: 100%; font: .9rem/1.5 ui-monospace, Consolas, monospace; padding: .7rem .8rem;
+  border: 1px solid var(--c-line); border-radius: var(--radius-sm); background: #FFFFFF;
+  color: var(--c-ink, inherit); resize: vertical;
+}
+.form-fallback .btn-row { margin: .9rem 0 0; }
 
 /* Screening (intake) form */
 .intake { max-width: 860px; }
@@ -519,10 +543,17 @@ form.wf-form { background: #FFFFFF; border: 1px solid var(--c-line); border-radi
 
 /* Touch targets: WCAG 2.2 "Target Size (Minimum)" is 24x24 CSS px. Links inside sentences are
    exempt, so this covers the standalone ones: footer lists, breadcrumbs, and contact details. */
-.site-footer ul a, .breadcrumbs a, .contact-item a, .cta-contact a {
+.site-footer ul a, .breadcrumbs a, .contact-item a, .cta-contact a, .practice-email a {
   display: inline-flex; align-items: center; min-height: 28px;
 }
 .site-footer ul { gap: .55rem; }
+/* 28px clears the standard but is still a fiddly thumb target on a phone, where most of this
+   site is read. On small screens the rows grow to the 44px that touch guidance asks for; the
+   list gap closes by the same amount, so the footer does not get taller. */
+@media (max-width: 700px) {
+  .site-footer ul a, .contact-item a, .practice-email a { min-height: 44px; }
+  .site-footer ul { gap: 0; }
+}
 
 /* Booking (Google Calendar appointment scheduling) */
 .booking-placeholder {
