@@ -21,9 +21,24 @@ add_action( 'after_setup_theme', function () {
     add_theme_support( 'html5', array( 'search-form', 'comment-form', 'comment-list', 'style', 'script' ) );
 } );
 
+/**
+ * A cache-busting version for one theme file: when it last changed on disk.
+ *
+ * A fixed version string means every edit ships under the same address, so browsers and the
+ * page cache keep serving the copy they already have and an uploaded stylesheet appears to do
+ * nothing. Keying on the file's own timestamp means a changed file always arrives, and an
+ * unchanged one still caches for as long as the host allows.
+ */
+function tls_asset_version( $file ) {
+    $stamp = @filemtime( $file );
+    return $stamp ? (string) $stamp : TLS_BASE_VERSION;
+}
+
 add_action( 'wp_enqueue_scripts', function () {
     $base = get_template_directory_uri();
     $child = get_stylesheet_directory_uri();
+    $base_dir = get_template_directory();
+    $child_dir = get_stylesheet_directory();
 
     // Typefaces. Self-hosting these is the next improvement: it removes a third-party request
     // and lets the Privacy Policy drop its Google Fonts section.
@@ -32,11 +47,14 @@ add_action( 'wp_enqueue_scripts', function () {
         wp_enqueue_style( 'tls-fonts', $fonts, array(), null );
     }
 
-    wp_enqueue_style( 'tls-base', $base . '/assets/css/base.css', array(), TLS_BASE_VERSION );
+    wp_enqueue_style( 'tls-base', $base . '/assets/css/base.css', array(),
+        tls_asset_version( $base_dir . '/assets/css/base.css' ) );
     if ( $child !== $base ) {
-        wp_enqueue_style( 'tls-brand', $child . '/style.css', array( 'tls-base' ), TLS_BASE_VERSION );
+        wp_enqueue_style( 'tls-brand', $child . '/style.css', array( 'tls-base' ),
+            tls_asset_version( $child_dir . '/style.css' ) );
     }
-    wp_enqueue_script( 'tls-app', $base . '/assets/js/app.js', array(), TLS_BASE_VERSION, true );
+    wp_enqueue_script( 'tls-app', $base . '/assets/js/app.js', array(),
+        tls_asset_version( $base_dir . '/assets/js/app.js' ), true );
 } );
 
 /**
