@@ -17,7 +17,7 @@ WordPress HTML block, so the pages render exactly as the approved preview does.
 import html
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -42,6 +42,15 @@ TITLES = {
     "faq": "FAQ",
     "begin-intake": "Begin Intake",
 }
+
+# WordPress's importer skips any page whose title, date and type already exist. Both practices
+# have an About, Services, How It Works, FAQ, Contact and Begin Intake, and every page carried
+# the same timestamp, so the second practice's six pages and the second Contact were silently
+# dropped — seven in all. Worse, WordPress then guessed at the missing addresses and sent
+# /leadership-systems/services/ to the Life Solutions page. Each page now carries the practice
+# in its title and a timestamp of its own, so nothing collides. The title is only the name in
+# the admin list; each page's own H1 comes from its content and is unchanged.
+SECTIONS = {"life-solutions": "Life Solutions", "leadership-systems": "Leadership Systems"}
 
 
 def page_content(path):
@@ -85,9 +94,13 @@ def collect():
         content = page_content(path)
         if content is None:
             continue
+        title = TITLES.get(slug, slug.replace("-", " ").title())
+        section = rel.split("/")[0] if "/" in rel else ""
+        if section in SECTIONS:
+            title = f"{SECTIONS[section]} — {title}"
         pages.append({
             "id": ids[rel],
-            "title": TITLES.get(slug, slug.replace("-", " ").title()),
+            "title": title,
             "slug": slug,
             "parent": parent_id,
             "link": f"{SITE}/{rel + '/' if rel else ''}",
@@ -127,7 +140,8 @@ def main():
         sys.exit("No build found. Run: python tools/build.py --production")
     pages = collect()
     stamp = datetime.now(timezone.utc)
-    items = "".join(item(p, stamp) for p in pages)
+    # A minute apart each, so no two pages ever share a title *and* a timestamp.
+    items = "".join(item(p, stamp - timedelta(minutes=n)) for n, p in enumerate(pages))
     DEST.write_text(f"""<?xml version="1.0" encoding="UTF-8" ?>
 <rss version="2.0"
   xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/"
