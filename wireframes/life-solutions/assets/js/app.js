@@ -254,6 +254,49 @@
     })[0];
   }
 
+  // A mailto: link does nothing at all for someone who reads their mail on the web and has no
+  // mail app registered — the page simply sits there and the message is lost. Rather than leave
+  // them stuck, every submit also reveals the finished message with the address to send it to, so
+  // it can be pasted into webmail. Nothing is transmitted from here; the text stays on the page.
+  function showFallback(form, body) {
+    var panel = form.querySelector('.form-fallback');
+    if (!panel) {
+      var address = form.dataset.email;
+      panel = document.createElement('div');
+      panel.className = 'form-fallback';
+      panel.setAttribute('role', 'status');
+      panel.setAttribute('tabindex', '-1');
+      panel.innerHTML =
+        '<h3>Your message is ready</h3>' +
+        '<p>Your email app should have opened with this message in it. <strong>It is not sent ' +
+        'until you press send there.</strong></p>' +
+        '<p>If nothing opened — which happens when you read your mail in a browser — copy the ' +
+        'message below and email it to <a class="fallback-address"></a>.</p>' +
+        '<textarea class="fallback-text" rows="10" readonly></textarea>' +
+        '<p class="btn-row"><button class="btn btn-secondary fallback-copy" type="button">' +
+        'Copy message</button></p>';
+      var link = panel.querySelector('.fallback-address');
+      link.href = 'mailto:' + address;
+      link.textContent = address;
+      panel.querySelector('.fallback-copy').addEventListener('click', function () {
+        var area = panel.querySelector('.fallback-text');
+        var button = this;
+        area.select();
+        var done = false;
+        try { done = document.execCommand('copy'); } catch (e) {}
+        if (!done && navigator.clipboard) {
+          try { navigator.clipboard.writeText(area.value); done = true; } catch (e) {}
+        }
+        button.textContent = done ? 'Copied' : 'Press Ctrl+C to copy';
+      });
+      form.appendChild(panel);
+    }
+    panel.querySelector('.fallback-text').value = body;
+    panel.hidden = false;
+    panel.focus();
+    if (panel.scrollIntoView) panel.scrollIntoView({ block: 'nearest' });
+  }
+
   Array.prototype.forEach.call(forms, function (form) {
     Array.prototype.forEach.call(form.querySelectorAll('.q select'), setUpQuestion);
     var error = form.querySelector('.form-error');
@@ -287,6 +330,7 @@
       var trimmed = body.length > 1500
         ? body.slice(0, 1500) + '\r\n\r\n[Truncated for email. The full response is on your clipboard — paste it here.]'
         : body;
+      showFallback(form, body);
       window.location.href = 'mailto:' + form.dataset.email +
         '?subject=' + encodeURIComponent(form.dataset.subject || 'Website enquiry') +
         '&body=' + encodeURIComponent(trimmed);
