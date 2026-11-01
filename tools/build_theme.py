@@ -163,9 +163,24 @@ add_action( 'after_setup_theme', function () {
     add_theme_support( 'html5', array( 'search-form', 'comment-form', 'comment-list', 'style', 'script' ) );
 } );
 
+/**
+ * A cache-busting version for one theme file: when it last changed on disk.
+ *
+ * A fixed version string means every edit ships under the same address, so browsers and the
+ * page cache keep serving the copy they already have and an uploaded stylesheet appears to do
+ * nothing. Keying on the file's own timestamp means a changed file always arrives, and an
+ * unchanged one still caches for as long as the host allows.
+ */
+function tls_asset_version( $file ) {
+    $stamp = @filemtime( $file );
+    return $stamp ? (string) $stamp : TLS_BASE_VERSION;
+}
+
 add_action( 'wp_enqueue_scripts', function () {
     $base = get_template_directory_uri();
     $child = get_stylesheet_directory_uri();
+    $base_dir = get_template_directory();
+    $child_dir = get_stylesheet_directory();
 
     // Typefaces. Self-hosting these is the next improvement: it removes a third-party request
     // and lets the Privacy Policy drop its Google Fonts section.
@@ -174,11 +189,14 @@ add_action( 'wp_enqueue_scripts', function () {
         wp_enqueue_style( 'tls-fonts', $fonts, array(), null );
     }
 
-    wp_enqueue_style( 'tls-base', $base . '/assets/css/base.css', array(), TLS_BASE_VERSION );
+    wp_enqueue_style( 'tls-base', $base . '/assets/css/base.css', array(),
+        tls_asset_version( $base_dir . '/assets/css/base.css' ) );
     if ( $child !== $base ) {
-        wp_enqueue_style( 'tls-brand', $child . '/style.css', array( 'tls-base' ), TLS_BASE_VERSION );
+        wp_enqueue_style( 'tls-brand', $child . '/style.css', array( 'tls-base' ),
+            tls_asset_version( $child_dir . '/style.css' ) );
     }
-    wp_enqueue_script( 'tls-app', $base . '/assets/js/app.js', array(), TLS_BASE_VERSION, true );
+    wp_enqueue_script( 'tls-app', $base . '/assets/js/app.js', array(),
+        tls_asset_version( $base_dir . '/assets/js/app.js' ), true );
 } );
 
 /**
@@ -200,13 +218,43 @@ add_filter( 'the_content', function ( $content ) {
 """
 
 
-HEADER_PART = """<!-- wp:group {"tagName":"header","className":"site-header","layout":{"type":"constrained"}} -->
+def nav_link(label, url):
+    return (f'<!-- wp:navigation-link {{"label":"{label}","url":"{url}","kind":"custom"}} /-->')
+
+
+def header_part():
+    """The header, with its menu written out explicitly.
+
+    An empty Navigation block falls back to listing every page on the site alphabetically,
+    which wraps onto several lines and crushes the button. Writing the items here means the
+    menu is correct the moment the theme is activated, with nothing to configure.
+    """
+    def submenu(label, path, children):
+        items = "".join(nav_link(t, f"/{path}/{slug}/" if slug else f"/{path}/")
+                        for t, slug in children)
+        return (f'<!-- wp:navigation-submenu {{"label":"{label}","url":"/{path}/","kind":"custom"}} -->'
+                f'{items}'
+                f'<!-- /wp:navigation-submenu -->')
+
+    practice_pages = [("Overview", ""), ("About", "about"), ("Services", "services"),
+                      ("How It Works", "how-it-works"), ("FAQ", "faq"), ("Contact", "contact"),
+                      ("Begin Intake", "begin-intake")]
+    items = "".join([
+        nav_link("Home", "/"),
+        submenu("Life Solutions", "life-solutions", practice_pages),
+        submenu("Leadership Systems", "leadership-systems", practice_pages),
+        nav_link("Ethics &amp; Compliance", "/ethics/"),
+        nav_link("Contact", "/contact/"),
+    ])
+    return f"""<!-- wp:group {{"tagName":"header","className":"site-header","layout":{{"type":"constrained"}}}} -->
 <header class="wp-block-group site-header">
-  <!-- wp:group {"className":"container header-inner","layout":{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between"}} -->
+  <!-- wp:group {{"className":"container header-inner","layout":{{"type":"flex","flexWrap":"nowrap","justifyContent":"space-between","verticalAlignment":"center"}}}} -->
   <div class="wp-block-group container header-inner">
-    <!-- wp:site-logo {"width":48,"className":"brand-mark"} /-->
-    <!-- wp:navigation {"overlayMenu":"mobile","className":"primary-nav"} /-->
-    <!-- wp:buttons {"className":"header-cta"} -->
+    <!-- wp:site-logo {{"width":48,"className":"brand-mark"}} /-->
+    <!-- wp:navigation {{"overlayMenu":"mobile","className":"primary-nav","layout":{{"type":"flex","justifyContent":"center","flexWrap":"nowrap"}}}} -->
+    {items}
+    <!-- /wp:navigation -->
+    <!-- wp:buttons {{"className":"header-cta"}} -->
     <div class="wp-block-buttons header-cta">
       <!-- wp:button -->
       <div class="wp-block-button"><a class="wp-block-button__link wp-element-button" href="/contact/">Request a Consultation</a></div>
@@ -221,12 +269,29 @@ HEADER_PART = """<!-- wp:group {"tagName":"header","className":"site-header","la
 
 
 def footer_part():
-    policies = "".join(
-        f'<!-- wp:paragraph --><p><a href="/{slug}/">{label}</a></p><!-- /wp:paragraph -->\n      '
-        for slug, label in C.ROOT_POLICIES)
+    """The footer, with every link written out.
+
+    Like the header, an empty Navigation block here would list every page alphabetically.
+    The practice addresses and the disclaimer come from content/, so they match the rest
+    of the site and change in one place.
+    """
+    def links(pairs):
+        return "".join(
+            f'<!-- wp:paragraph --><p><a href="{url}">{label}</a></p><!-- /wp:paragraph -->\n      '
+            for label, url in pairs)
+
+    # Ethics & Compliance is deliberately absent here: it is listed under Policies below, and
+    # carrying it in both columns listed it twice in the same footer (owner's review, 2026-10-05).
+    explore = links([("Life Solutions", "/life-solutions/"),
+                     ("Leadership Systems", "/leadership-systems/"),
+                     ("Contact", "/contact/")])
+    policies = links([(label, f"/{slug}/") for slug, label in C.ROOT_POLICIES])
     social = "".join(
         f'<!-- wp:paragraph --><p><a href="{url}" rel="noopener">{label}</a></p><!-- /wp:paragraph -->\n      '
         for label, url in C.SOCIAL)
+    emails = "".join(
+        f'<!-- wp:paragraph --><p><a href="mailto:{addr}">{addr}</a></p><!-- /wp:paragraph -->\n      '
+        for addr in (C.EMAIL_LIFE, C.EMAIL_LEADERSHIP))
     return f"""<!-- wp:group {{"tagName":"footer","className":"site-footer","layout":{{"type":"constrained"}}}} -->
 <footer class="wp-block-group site-footer">
   <!-- wp:columns {{"className":"container footer-grid"}} -->
@@ -234,19 +299,20 @@ def footer_part():
     <!-- wp:column -->
     <div class="wp-block-column">
       <!-- wp:site-logo {{"width":170,"className":"footer-logo"}} /-->
-      <!-- wp:paragraph --><p>Edit this description in the footer template part.</p><!-- /wp:paragraph -->
+      <!-- wp:paragraph --><p>{hub.SITE["footer_blurb"]}</p><!-- /wp:paragraph -->
     </div>
     <!-- /wp:column -->
     <!-- wp:column -->
     <div class="wp-block-column">
       <!-- wp:heading {{"level":2,"className":"footer-h"}} --><h2 class="wp-block-heading footer-h">Explore</h2><!-- /wp:heading -->
-      <!-- wp:navigation {{"overlayMenu":"never"}} /-->
+      {explore}
     </div>
     <!-- /wp:column -->
     <!-- wp:column -->
     <div class="wp-block-column">
       <!-- wp:heading {{"level":2,"className":"footer-h"}} --><h2 class="wp-block-heading footer-h">Contact</h2><!-- /wp:heading -->
       <!-- wp:paragraph --><p><a href="tel:{C.PHONE_TEL}">Call or text {C.PHONE}</a></p><!-- /wp:paragraph -->
+      {emails}
       <!-- wp:heading {{"level":2,"className":"footer-h"}} --><h2 class="wp-block-heading footer-h">Follow</h2><!-- /wp:heading -->
       {social}
     </div>
@@ -261,7 +327,7 @@ def footer_part():
   <!-- /wp:columns -->
   <!-- wp:group {{"className":"container footer-legal","layout":{{"type":"constrained"}}}} -->
   <div class="wp-block-group container footer-legal">
-    <!-- wp:paragraph --><p>Neutral ADR, conflict-coaching, and organizational facilitation services only. We do not provide legal advice, legal representation, or legal advocacy, or medical, mental health, or clinical therapeutic services.</p><!-- /wp:paragraph -->
+    <!-- wp:paragraph --><p>{hub.SITE["short_disclaimer"]}</p><!-- /wp:paragraph -->
   </div>
   <!-- /wp:group -->
 </footer>
@@ -465,9 +531,12 @@ def build_base():
         "Shared block theme for LetTLSHelp: layout, components, header and footer, and the "
         "section patterns. Activate a child theme, never this one."))
     write(base / "theme.json", json.dumps(base_theme_json(), indent=2) + "\n")
-    write(base / "functions.php", FUNCTIONS_PHP % {"version": VERSION})
-    write(base / "parts" / "header.html", HEADER_PART)
+    write(base / "functions.php",
+          FUNCTIONS_PHP % {"version": VERSION} + SEO_PHP + seo_map() + IMAGES_PHP)
+    (base / "seo.php").unlink(missing_ok=True)
+    copy_photographs(base)
     write(base / "parts" / "footer.html", footer_part())
+    write(base / "parts" / "header.html", header_part())
     for name, markup in TEMPLATES.items():
         write(base / "templates" / name, markup)
     for slug, php in patterns().items():
@@ -477,6 +546,34 @@ def build_base():
     shutil.copy2(DESIGN / "base.css", base / "assets" / "css" / "base.css")
     shutil.copy2(DESIGN / "app.js", base / "assets" / "js" / "app.js")
     return base
+
+
+def copy_photographs(base):
+    """Gather both sections' photographs into one folder inside the theme.
+
+    In the static build each practice serves its own images from its own folder, and the page
+    markup reaches them with relative paths. WordPress pages do not sit in those folders, so
+    the pictures have to live at a fixed address instead. The file names do not collide across
+    the two practices, so one flat folder is enough, and IMAGES_PHP points the markup at it.
+    """
+    dest = base / "assets" / "img"
+    dest.mkdir(parents=True, exist_ok=True)
+    kept = set()
+    for section in ("life-solutions", "leadership-systems"):
+        source = ROOT / "wireframes" / section / "assets" / "img"
+        if not source.exists():
+            raise SystemExit(f"No images at {source}. Run: python tools/build.py --production")
+        for photo in source.iterdir():
+            if photo.suffix.lower() not in (".avif", ".webp", ".jpg", ".jpeg", ".png"):
+                continue
+            if photo.name in kept:
+                raise SystemExit(f"Two sections both have {photo.name}; the flat folder breaks.")
+            shutil.copy2(photo, dest / photo.name)
+            kept.add(photo.name)
+    for stale in dest.iterdir():
+        if stale.name not in kept:
+            stale.unlink()
+    return len(kept)
 
 
 def child_theme_json(palette_key):
@@ -497,6 +594,153 @@ def child_theme_json(palette_key):
             "typography": {"fontFamilies": families},
         },
     }
+
+
+def seo_map():
+    """Per-page title, description, social image and structured data.
+
+    WordPress builds a title from the page name plus the site name, has no description, and
+    emits no structured data. All of that was written for the static build and is lost in the
+    move, so it is lifted straight out of the rendered pages and handed to the theme, keyed by
+    URL path. Nothing is retyped, and it stays in step with content/ on every rebuild.
+
+    Written into functions.php rather than a file beside it, so installing the theme by hand
+    is one file to copy and cannot half-arrive.
+    """
+    import html as html_mod
+    import re
+
+    built = ROOT / "wireframes"
+    if not built.exists():
+        raise SystemExit("No build found. Run: python tools/build.py --production")
+
+    entries = {}
+    for path in sorted(built.rglob("index.html")):
+        rel = path.relative_to(built).parent.as_posix()
+        url_path = "/" if rel == "." else f"/{rel}/"
+        markup = path.read_text("utf-8")
+
+        def grab(pattern):
+            found = re.search(pattern, markup, re.S)
+            return html_mod.unescape(found.group(1)).strip() if found else ""
+
+        entries[url_path] = {
+            "title": grab(r"<title>(.*?)</title>"),
+            "description": grab(r'<meta name="description" content="([^"]*)"'),
+            "og_image": grab(r'<meta property="og:image" content="([^"]*)"'),
+            "jsonld": grab(r'<script type="application/ld\+json">(.*?)</script>'),
+        }
+
+    def php_string(value):
+        return "'" + value.replace("\\", "\\\\").replace("'", "\\'") + "'"
+
+    rows = []
+    for url_path, data in entries.items():
+        rows.append(
+            f"    {php_string(url_path)} => array(\n"
+            f"        'title' => {php_string(data['title'])},\n"
+            f"        'description' => {php_string(data['description'])},\n"
+            f"        'og_image' => {php_string(data['og_image'])},\n"
+            f"        'jsonld' => {php_string(data['jsonld'])},\n"
+            f"    ),"
+        )
+    return f"""
+/**
+ * Per-page search-engine data, generated by tools/build_theme.py from the built pages.
+ *
+ * Do not edit by hand: re-run the generator instead, or it will drift from content/.
+ */
+function tls_seo_map() {{
+    return array(
+{chr(10).join(rows)}
+    );
+}}
+"""
+
+
+SEO_PHP = """
+/**
+ * Search-engine data for the current page, or null if we have none for this address.
+ */
+function tls_seo() {
+    static $map = null;
+    if ( $map === null ) {
+        $map = tls_seo_map();
+    }
+    $path = wp_parse_url( $_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH );
+    $path = '/' . trim( (string) $path, '/' );
+    if ( $path !== '/' ) {
+        $path .= '/';
+    }
+    return $map[ $path ] ?? null;
+}
+
+/**
+ * Use the written title rather than "Page name - Site name".
+ */
+add_filter( 'pre_get_document_title', function ( $title ) {
+    $seo = tls_seo();
+    return ( $seo && $seo['title'] ) ? $seo['title'] : $title;
+} );
+
+/**
+ * The description, social tags and structured data WordPress does not produce.
+ *
+ * An SEO plugin would output its own versions of these. If one is installed later, either
+ * let it take over and delete this block, or turn the plugin's title and meta features off.
+ */
+add_action( 'wp_head', function () {
+    $seo = tls_seo();
+    if ( ! $seo ) {
+        return;
+    }
+    if ( $seo['description'] ) {
+        printf( '<meta name="description" content="%s">' . "\\n", esc_attr( $seo['description'] ) );
+        printf( '<meta property="og:description" content="%s">' . "\\n", esc_attr( $seo['description'] ) );
+    }
+    if ( $seo['title'] ) {
+        printf( '<meta property="og:title" content="%s">' . "\\n", esc_attr( $seo['title'] ) );
+    }
+    if ( $seo['og_image'] ) {
+        printf( '<meta property="og:image" content="%s">' . "\\n", esc_url( $seo['og_image'] ) );
+        printf( '<meta name="twitter:card" content="summary_large_image">' . "\\n" );
+    }
+    printf( '<meta property="og:type" content="website">' . "\\n" );
+    printf( '<meta property="og:url" content="%s">' . "\\n", esc_url( home_url( add_query_arg( array() ) ) ) );
+    if ( $seo['jsonld'] ) {
+        echo '<script type="application/ld+json">' . $seo['jsonld'] . '</script>' . "\\n";
+    }
+}, 5 );
+"""
+
+
+IMAGES_PHP = """
+/**
+ * Point the pages' photographs at the theme.
+ *
+ * The page markup was written for the static build, where each practice served its pictures
+ * from a folder beside the page: src="assets/img/..." on a top-level page, "../assets/img/..."
+ * one level down. A WordPress page is not in that folder, so those paths resolve to nothing
+ * and every photograph comes up blank. The pictures now live in one folder in the theme, and
+ * this rewrites the addresses on the way out.
+ *
+ * Rewriting on output, rather than editing twenty pages, keeps the stored content identical to
+ * the approved build. If the pictures are ever moved into the Media Library, delete this.
+ *
+ * Two details earned their keep. The pattern also accepts a leading slash, because WordPress's
+ * own image filter normalises an <img src> to "/assets/img/..." before this runs and the earlier
+ * pattern then skipped it — the srcset was rewritten and the plain src was left behind, so the
+ * fallback JPEG 404ed on fourteen images. And this runs at priority 9, ahead of that filter, so
+ * core sees finished addresses rather than half-rewritten ones.
+ */
+add_filter( 'the_content', function ( $content ) {
+    return preg_replace(
+        '#(["\\'\\s,])(?:/|(?:\\.\\./)+)?assets/img/#',
+        '$1' . trailingslashit( get_template_directory_uri() ) . 'assets/img/',
+        $content
+    );
+}, 9 );
+"""
 
 
 def build_child():
@@ -527,6 +771,64 @@ def build_child():
 .site-leadership .custom-logo { content: url("assets/leadership-logo-mark.png"); }
 .site-life .custom-logo,
 .site-hub .custom-logo { content: url("assets/life-logo-mark.png"); }
+
+/* ---------------------------------------------------------------------------
+   WordPress block markup.
+   The static site's header is a plain flex row; WordPress wraps every block in
+   its own containers, so the row needs rebuilding here. Without these the
+   navigation wraps onto several lines and squeezes the button into a circle.
+   --------------------------------------------------------------------------- */
+/* WordPress caps every direct child of a constrained group at the *content* width (46rem).
+   That is right for a paragraph and wrong for a full-width bar: the header row was squeezed
+   into 736px, which left the five menu items about 412px to sit in. Being centred and set to
+   never wrap, they spilled out of their box in both directions and landed on top of the logo
+   on one side and the Request a Consultation button on the other. The header row and the
+   footer grid take the site container width instead, exactly as they do in the static build.
+   `.container` then does the rest, including the gutter on narrow screens. */
+.site-header .header-inner,
+.site-footer .footer-grid { max-width: none; }
+
+.site-header .header-inner {
+  display: flex; align-items: center; gap: 1.5rem; flex-wrap: nowrap;
+  padding-block: .85rem;
+}
+.site-header .wp-block-site-logo { flex-shrink: 0; line-height: 0; }
+.site-header .wp-block-site-logo img { width: 48px; height: auto; }
+
+.site-header .primary-nav { flex-grow: 1; min-width: 0; }
+.site-header .primary-nav .wp-block-navigation__container {
+  flex-wrap: nowrap; justify-content: center; gap: .15rem;
+}
+.site-header .primary-nav .wp-block-navigation-item__content {
+  padding: .5rem .7rem; border-radius: 999px; color: var(--c-text);
+  text-decoration: none; font-size: .95rem; white-space: nowrap;
+}
+.site-header .primary-nav .wp-block-navigation-item__content:hover {
+  background: var(--c-soft-1); color: var(--c-deep);
+}
+.site-header .primary-nav .current-menu-item > .wp-block-navigation-item__content {
+  background: var(--c-soft-1); color: var(--c-primary); font-weight: 600;
+}
+
+/* The button must never shrink into a circle: it keeps its text on one line. */
+.site-header .header-cta { flex-shrink: 0; margin: 0; }
+.site-header .header-cta .wp-block-button__link { white-space: nowrap; padding: .75rem 1.4rem; }
+
+/* Below the desktop breakpoint the navigation becomes WordPress's overlay menu,
+   so the inline row is not needed and the button steps aside. */
+@media (max-width: 1100px) {
+  .site-header .header-cta { display: none; }
+  .site-header .primary-nav { flex-grow: 0; margin-left: auto; }
+}
+
+/* Footer: WordPress columns in place of the static grid. */
+.site-footer .footer-grid { gap: 2.5rem; }
+.site-footer .footer-grid p { margin: 0 0 .45rem; }
+.site-footer .wp-block-site-logo img {
+  width: 170px; height: auto; background: #FFFFFF;
+  border-radius: var(--radius); padding: .9rem;
+}
+.site-footer .footer-h { margin: 0 0 .9rem; }
 """)
     write(path / "style.css", "".join(layers))
     write(path / "theme.json", json.dumps(child_theme_json(palette_key), indent=2) + "\n")

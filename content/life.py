@@ -3,8 +3,7 @@
 Sources: 'TLS_Website Development Guide_ 09132026.pdf' (current) and the owner's brief.
 Copy that isn't in those sources carries a `draft` note so it gets owner/legal sign-off.
 """
-from common import (COMMERCE_SLOT, FOUNDER_GROUPS, GSC_TOKEN, PHONE,
-                    REFERRALS, ROOT_POLICIES)
+from common import (FOUNDER_GROUPS, GSC_TOKEN, PHONE, REFERRALS, ROOT_POLICIES)
 from common import EMAIL_LIFE as C_EMAIL_LIFE
 from screening import (LIFE_INTRO, LIFE_QUESTIONS, ROLES, STOP_REFERRALS, STOP_TEXT, STOP_TITLE)
 
@@ -107,8 +106,9 @@ FAQ = [
      "a": f'Arbitration, med-arb, and negotiation support for eligible, non-consumer-facing organizations are '
           f'offered through our sister practice, <a href="{SISTER_URL}">Transformative Leadership Systems</a>.'},
     {"q": "How do I get started?",
-     "a": f'Call or text <a href="tel:+12406500007">{PHONE}</a>, email <a href="mailto:{EMAIL}">{EMAIL}</a>, '
-          f'or send a brief message through the contact page.'},
+     "a": f'Complete our <a href="../begin-intake/">online screening</a>, email '
+          f'<a href="mailto:{EMAIL}">{EMAIL}</a>, or call or text '
+          f'<a href="tel:+12406500007">{PHONE}</a>.'},
     # Added 2026-09-16: questions people commonly search for. Answers that need the owner's own
     # numbers or an attorney's wording carry a draft flag instead of invented detail.
     {"q": "How much does mediation cost?",
@@ -178,7 +178,7 @@ PILLARS = [
 PILLAR_DRAFT = "Pillar names are from the owner's guide; the one-line descriptions are draft copy for owner review."
 
 STEPS = [
-    {"title": "Reach out", "text": f"Call or text {PHONE}, send an email, or begin intake online."},
+    {"title": "Reach out", "text": f"Begin intake online, send an email, or call or text {PHONE}."},
     {"title": "Eligibility screening",
      "text": "Written and verbal screening confirms your matter is one we can ethically facilitate."},
     {"title": "Confirm next steps",
@@ -377,7 +377,7 @@ PAGES = [
             {"type": "notlist", "wf": "Pattern: tls/scope-notice", "tone": "mist", "h2": "What we do not handle",
              "intro": "Transformative Life Solutions does not mediate:", "bullets": NOT_HANDLED,
              "link": ("/ethics", "Ethics & Compliance")},
-            {"type": "slot", "tone": "white", **COMMERCE_SLOT},
+            # The future e-commerce card was removed on the owner's review, 2026-10-05.
             CTA,
         ],
     },
@@ -438,9 +438,9 @@ PAGES = [
              "lede": "Private ADR, Mediation & Conflict Coaching Practice. Serving clients with virtual and "
                      "in‑person options."},
             {"type": "contact", "tone": "white"},
-            {"type": "booking", "wf": "Block: Google Calendar appointment schedule (embed)", "tone": "soft",
-             "eyebrow": "Scheduling", "h2": "Book a consultation",
-             "intro": "Pick a time that works for you once online booking is live."},
+            # Scheduling block and its Google Calendar setup note removed on the owner's review,
+            # 2026-10-05: nothing on the page should offer booking until booking exists. The
+            # "booking" section type is still in tools/build.py, so restoring it is a paste job.
         ],
     },
     {

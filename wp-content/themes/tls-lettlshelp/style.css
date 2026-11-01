@@ -114,3 +114,61 @@ Text Domain: lettlshelp
 .site-leadership .custom-logo { content: url("assets/leadership-logo-mark.png"); }
 .site-life .custom-logo,
 .site-hub .custom-logo { content: url("assets/life-logo-mark.png"); }
+
+/* ---------------------------------------------------------------------------
+   WordPress block markup.
+   The static site's header is a plain flex row; WordPress wraps every block in
+   its own containers, so the row needs rebuilding here. Without these the
+   navigation wraps onto several lines and squeezes the button into a circle.
+   --------------------------------------------------------------------------- */
+/* WordPress caps every direct child of a constrained group at the *content* width (46rem).
+   That is right for a paragraph and wrong for a full-width bar: the header row was squeezed
+   into 736px, which left the five menu items about 412px to sit in. Being centred and set to
+   never wrap, they spilled out of their box in both directions and landed on top of the logo
+   on one side and the Request a Consultation button on the other. The header row and the
+   footer grid take the site container width instead, exactly as they do in the static build.
+   `.container` then does the rest, including the gutter on narrow screens. */
+.site-header .header-inner,
+.site-footer .footer-grid { max-width: none; }
+
+.site-header .header-inner {
+  display: flex; align-items: center; gap: 1.5rem; flex-wrap: nowrap;
+  padding-block: .85rem;
+}
+.site-header .wp-block-site-logo { flex-shrink: 0; line-height: 0; }
+.site-header .wp-block-site-logo img { width: 48px; height: auto; }
+
+.site-header .primary-nav { flex-grow: 1; min-width: 0; }
+.site-header .primary-nav .wp-block-navigation__container {
+  flex-wrap: nowrap; justify-content: center; gap: .15rem;
+}
+.site-header .primary-nav .wp-block-navigation-item__content {
+  padding: .5rem .7rem; border-radius: 999px; color: var(--c-text);
+  text-decoration: none; font-size: .95rem; white-space: nowrap;
+}
+.site-header .primary-nav .wp-block-navigation-item__content:hover {
+  background: var(--c-soft-1); color: var(--c-deep);
+}
+.site-header .primary-nav .current-menu-item > .wp-block-navigation-item__content {
+  background: var(--c-soft-1); color: var(--c-primary); font-weight: 600;
+}
+
+/* The button must never shrink into a circle: it keeps its text on one line. */
+.site-header .header-cta { flex-shrink: 0; margin: 0; }
+.site-header .header-cta .wp-block-button__link { white-space: nowrap; padding: .75rem 1.4rem; }
+
+/* Below the desktop breakpoint the navigation becomes WordPress's overlay menu,
+   so the inline row is not needed and the button steps aside. */
+@media (max-width: 1100px) {
+  .site-header .header-cta { display: none; }
+  .site-header .primary-nav { flex-grow: 0; margin-left: auto; }
+}
+
+/* Footer: WordPress columns in place of the static grid. */
+.site-footer .footer-grid { gap: 2.5rem; }
+.site-footer .footer-grid p { margin: 0 0 .45rem; }
+.site-footer .wp-block-site-logo img {
+  width: 170px; height: auto; background: #FFFFFF;
+  border-radius: var(--radius); padding: .9rem;
+}
+.site-footer .footer-h { margin: 0 0 .9rem; }
